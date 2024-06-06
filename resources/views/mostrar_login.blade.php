@@ -13,7 +13,7 @@
 	<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.1/css/all.css" integrity="sha384-gfdkjb5BdAXd+lj+gudLWI+BXq4IuLW5IT+brZEZsLFm++aCMlF1V92rMkPaX4PP" crossorigin="anonymous">
 	<style>
 		body {
-			background: url(https://www.bankinter.com/file_source/blog/Contents/A-Imagenes/aire-acondicionado-azul.png);
+			background: url(https://www.construcsurperu.com/wp-content/uploads/2022/07/calaminas-03.jpg);
 			font-family: 'PT Sans', Helvetica, Arial, sans-serif;
 			color: #fff;
 			background-repeat: no-repeat;
@@ -68,7 +68,7 @@
 			width: 390px;
 			margin-top: auto;
 			margin-bottom: auto;
-			background: #00FFAE;
+			background: #FFBD00;
 			position: relative;
 			display: flex;
 			justify-content: center;
@@ -154,27 +154,27 @@
 					<form action="{{route('login')}}" method="POST">
 						@csrf
 						<br>
-						<h5 class="tituloo" style="color: black;">SEINDEL PERU</h5>
+						<h5 class="tituloo" style="color: black;">EMPRESA PERU</h5>
 						<div class="input-group mb-3">
 							<div class="input-group-append">
 								<span class="input-group-text"><i class="fas fa-user"></i></span>
 							</div>
-							<input type="text" name="username" class="form-control input_user" id="username" placeholder="username">
+							<input type="text" name="username" class="form-control input_user" id="username" placeholder="usuario">
 						</div>
 						<div class="input-group mb-2">
 							<div class="input-group-append">
 								<span class="input-group-text"><i class="fas fa-key"></i></span>
 							</div>
-							<input type="password" name="password" class="form-control input_pass" id="password" placeholder="password">
+							<input type="password" name="password" class="form-control input_pass" id="password" placeholder="contraseña">
 						</div>
-						<div class="form-group">
+						<!-- <div class="form-group">
 							<div class="custom-control custom-checkbox">
 								<input type="checkbox" class="custom-control-input" id="customControlInline">
 								<label class="custom-control-label" for="customControlInline" style="color: black;">Recordar</label>
 							</div>
-						</div>
+						</div> -->
 						<div class="d-flex justify-content-center mt-3 login_container">
-							<button type="submit" class="btn login_btn" onclick="submitForm()">Login</button>
+							<button type="submit" class="btn login_btn" onclick="submitForm()">Entrar</button>
 						</div>
 					</form>
 					<script src="https://code.jquery.com/jquery-3.6.4.slim.min.js"></script>

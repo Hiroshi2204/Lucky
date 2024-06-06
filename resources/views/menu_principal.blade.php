@@ -22,7 +22,7 @@
     body {
       margin: 0;
       padding: 0;
-      background: url('https://st2.depositphotos.com/1703414/45756/i/450/depositphotos_457562738-stock-photo-air-conditioner-compressor-unit.jpg') no-repeat center center fixed;
+      background: url('https://p4.wallpaperbetter.com/wallpaper/437/330/385/industry-factory-metal-iron-wallpaper-preview.jpg') no-repeat center center fixed;
       /* Propiedades para hacer que la imagen de fondo cubra toda la pantalla */
       -webkit-background-size: cover;
       -moz-background-size: cover;
@@ -35,7 +35,7 @@
       align-items: center;
       justify-content: space-between;
       padding: 2rem;
-      background-color: #A7A7A7;
+      background-color: #C6D328;
     }
 
     .logo {
@@ -166,14 +166,15 @@
 <body>
   @csrf
   <header>
-    <img class="logo" src="https://i1.wp.com/seindelperu.com/wp-content/uploads/2019/01/cropped-SEINDEL-PERU-01-crop.png?fit=1574%2C369&ssl=1" alt="Logo">
+    <!-- <img class="logo"  src="https://i1.wp.com/seindelperu.com/wp-content/uploads/2019/01/cropped-SEINDEL-PERU-01-crop.png?fit=1574%2C369&ssl=1" alt="Logo"> -->
+    <img class="logo" src="" alt="Logo">
     <button id="abrir" class="abrir-menu"><i class="bi bi-list"></i></button>
     <nav class="navbar navbar-expand-lg bg-body-tertiary">
       <ul class="navbar-nav">
         <li class="active">
           <a href="#" class="nav-link">Inicio</a>
         </li>
-        <li class="nav-item dropdown"> <!-- Agrega la clase dropdown al elemento principal -->
+        <!-- <li class="nav-item dropdown">
           <a href="#" class="nav-link dropdown-toggle" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
             Trabajadores
           </a>
@@ -185,7 +186,7 @@
             </li>
             <li><a class="dropdown-item" href="{{route('buscar_trabajador')}}">Buscar Trabajador</a></li>
           </ul>
-        </li>
+        </li> -->
         <li class="nav-item dropdown"> <!-- Agrega la clase dropdown al elemento principal -->
           <a href="#" class="nav-link dropdown-toggle" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
             Productos y Equipos
