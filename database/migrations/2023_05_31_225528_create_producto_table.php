@@ -18,6 +18,7 @@ class CreateProductoTable extends Migration
             $table->string('nom_producto')->nullable();
             $table->string('descripcion')->nullable();
             //$table->string('foto')->nullable();
+            
             $table->integer('cantidad')->nullable();
             $table->foreignId('marca_id')->nullable()->references('id')->on('marca');
             $table->char('estado_registro')->default('A');
