@@ -11,8 +11,9 @@ class RegistroSalidaDetalle extends Model
     protected $table = 'registro_salida_detalle';
     protected $fillable = array(
                             'producto_id',
+                            'peso_neto',
                             'precio',
-                            'cantidad',
+                            'largo',
                             'registro_salida_id'
                         );
     protected $primaryKey = 'id';

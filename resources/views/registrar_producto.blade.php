@@ -41,12 +41,24 @@
                                 <input name="productos[0][nom_producto]" class="form-control" placeholder="Producto" type="text">
                             </div>
                             <div class="form-group">
-                                <label for="productos[0][descripcion]">Descripción del Producto</label>
-                                <input name="productos[0][descripcion]" class="form-control" placeholder="Descripción" type="text">
+                                <label for="productos[0][cod_producto]">Código del Producto</label>
+                                <input name="productos[0][cod_producto]" class="form-control" placeholder="Código" type="text">
                             </div>
                             <div class="form-group">
-                                <label for="productos[0][cantidad]">Cantidad del Producto</label>
-                                <input name="productos[0][cantidad]" class="form-control" placeholder="0" type="number">
+                                <label for="productos[0][lote]">Lote del Producto</label>
+                                <input name="productos[0][lote]" class="form-control" placeholder="lote" type="text">
+                            </div>
+                            <div class="form-group">
+                                <label for="productos[0][color]">Color del Producto</label>
+                                <input name="productos[0][color]" class="form-control" placeholder="color" type="text">
+                            </div>
+                            <div class="form-group">
+                                <label for="productos[0][origen]">Origen del Producto</label>
+                                <input name="productos[0][origen]" class="form-control" placeholder="color" type="text">
+                            </div>
+                            <div class="form-group">
+                                <label for="productos[0][peso_neto]">Peso Neto del Producto</label>
+                                <input name="productos[0][peso_neto]" class="form-control" placeholder="color" type="text">
                             </div>
                             <!-- <div class="form-group">
                                 <label for="productos[0][proveedor]">Proveedor del Producto</label>
@@ -56,27 +68,7 @@
                                 <label for="productos[0][precio]">Precio del Producto</label>
                                 <input name="productos[0][precio]" class="form-control" placeholder="Precio" type="number">
                             </div> -->
-                            <div class="form-group">
-                                <label for="productos[0][marca_id]">Marca del Producto</label>
-                                <select class="form-control" name="productos[0][marca_id]">
-                                    <option value="">Selecciona una Marca</option>
-                                    <?php
-                                    $conexion = new mysqli("localhost", "root", "", "lucky");
-
-                                    if ($conexion->connect_error) {
-                                        die("Conexión fallida: " . $conexion->connect_error);
-                                    }
-
-                                    $consulta = "SELECT id, nombre FROM marca";
-                                    $resultado = $conexion->query($consulta);
-
-                                    while ($fila = $resultado->fetch_assoc()) {
-                                        echo "<option value='{$fila['id']}'>{$fila['nombre']}</option>";
-                                    }
-                                    $conexion->close();
-                                    ?>
-                                </select>
-                            </div>
+                            
                         </article>
                     </div>
                     <br>

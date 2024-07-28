@@ -82,8 +82,8 @@
                                 </select>
                             </div>
                             <div class="form-group">
-                                <label for="productos[0][cantidad]">Cantidad del Producto</label>
-                                <input name="productos[0][cantidad]" class="form-control" placeholder="0" type="number">
+                                <label for="productos[0][largo]">Largo del Producto</label>
+                                <input name="productos[0][largo]" class="form-control" placeholder="0" type="number">
                             </div>
                             <div class="form-group">
                                 <label for="productos[0][precio]">Precio del Producto</label>

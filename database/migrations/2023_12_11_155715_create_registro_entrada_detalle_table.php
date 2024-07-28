@@ -16,8 +16,11 @@ class CreateRegistroEntradaDetalleTable extends Migration
         Schema::create('registro_entrada_detalle', function (Blueprint $table) {
             $table->id();
             $table->foreignId('producto_id')->nullable()->references('id')->on('producto');
+            //$table->string('origen')->nullable();
+            $table->double('peso_neto')->nullable();
+            $table->double('largo')->nullable();
             $table->integer('precio')->nullable();
-            $table->integer('cantidad')->nullable();
+            //$table->integer('cantidad')->nullable();
             $table->foreignId('registro_entrada_id')->nullable()->references('id')->on('registro_entrada');
             $table->timestamps();
         });

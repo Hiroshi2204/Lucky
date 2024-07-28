@@ -255,19 +255,21 @@ class LoginController extends Controller
                     return response()->json(["resp" => "Error al crear productos: Formato de datos incorrecto"], 400);
                 }
 
-                $id_producto = Producto::where('nom_producto',  $productoData['nom_producto'])->first();
+                $id_producto = Producto::where('lote',  $productoData['lote'])->first();
                 if ($id_producto) {
-                    $cantidad_producto = Producto::where('nom_producto',  $productoData['nom_producto'])->first();
+                    $peso_producto = Producto::where('lote',  $productoData['lote'])->first();
                     //return response()->json($cantidad_producto);
-                    $cantidad_total =  $productoData['cantidad'] + $cantidad_producto->cantidad;
+                    $peso_total =  $productoData['peso_neto'] + $peso_producto->peso_neto;
                     $producto = Producto::updateOrCreate([
-                        "nom_producto" =>  $productoData['nom_producto'],
-                        "descripcion" =>  $productoData['descripcion'],
+                        "lote" => $productoData['lote'],
                     ], [
                         "nom_producto" =>  $productoData['nom_producto'],
-                        "descripcion" =>  $productoData['descripcion'],
-                        "cantidad" => $cantidad_total,
-                        "marca_id" =>  $productoData['marca_id']
+                        "cod_producto" =>  $productoData['cod_producto'],
+                        "lote" => $productoData['lote'],
+                        "color" =>  $productoData['color'],
+                        "origen" => $productoData['origen'],
+                        "peso_neto" => $peso_total,
+                        //"marca_id" =>  $productoData['marca_id']
                     ]);
                     // $entrada = RegistroEntrada::create([
                     //     "fecha_entrada" => Carbon::now(),
@@ -285,9 +287,12 @@ class LoginController extends Controller
                 } else {
                     $producto = Producto::create([
                         "nom_producto" => $productoData['nom_producto'],
-                        "descripcion" => $productoData['descripcion'],
-                        "cantidad" => $productoData['cantidad'],
-                        "marca_id" => $productoData['marca_id'],
+                        "cod_producto" => $productoData['cod_producto'],
+                        "lote" => $productoData['lote'],
+                        "color" => $productoData['color'],
+                        "origen" => $productoData['origen'],
+                        "peso_neto" => $productoData['peso_neto'],
+                        //"marca_id" => $productoData['marca_id'],
                     ]);
                     // $entrada = RegistroEntrada::create([
                     //     "fecha_entrada" => Carbon::now(),
@@ -340,12 +345,14 @@ class LoginController extends Controller
                 $id_producto = Producto::where('id', $productoData['id'])->first();
                 //return response()->json($id_producto);
                 //if ($productoData['cantidad'] > $id_producto->cantidad) return response()->json(["resp" => "No hay suficientes productos"]);
-                $cantidad_total = $id_producto->cantidad + $productoData['cantidad'];
-                $producto = Producto::updateOrCreate([
-                    "id" => $productoData['id'],
-                ], [
-                    "cantidad" => $cantidad_total,
-                ]);
+                // $lote_total = $id_producto->lote + $productoData['lote'];
+                // $producto = Producto::updateOrCreate([
+                //     "id" => $productoData['id'],
+                // ], [
+                //     "lote" => $lote_total,
+                //     "cod_producto" =>  $productoData['cod_producto'],
+                //     "color" =>  $productoData['color'],
+                // ]);
                 /*$salida = RegistroSalida::create([
                     "fecha_salida" => Carbon::now(),
                     "proveedor_id" => $productoData['proveedor_id'],
@@ -353,8 +360,10 @@ class LoginController extends Controller
                 ]);*/
                 $entrada_detalle = RegistroEntradaDetalle::create([
                     "producto_id" => $id_producto->id,
+                    //"origen" => $productoData['origen'],
+                    "peso_neto" => $id_producto->peso_neto,
                     "precio" => $productoData['precio'],
-                    "cantidad" => $productoData['cantidad'],
+                    "largo" => $productoData['largo'],
                     "registro_entrada_id" => $entrada->id
                 ]);
             }
@@ -390,12 +399,12 @@ class LoginController extends Controller
                 }
                 $id_producto = Producto::where('id', $productoData['id'])->first();
                 //return response()->json($id_producto);
-                if ($productoData['cantidad'] > $id_producto->cantidad) return response()->json(["resp" => "No hay suficientes productos"]);
-                $cantidad_total = $id_producto->cantidad - $productoData['cantidad'];
+                if ($productoData['peso_neto'] > $id_producto->registro_entreda_detalle->peso_neto) return response()->json(["resp" => "No hay suficientes productos"]);
+                $peso_total = $id_producto->registro_entreda_detalle->peso_neto - $productoData['peso_neto'];
                 $producto = Producto::updateOrCreate([
                     "id" => $productoData['id'],
                 ], [
-                    "cantidad" => $cantidad_total,
+                    "cantidad" => $peso_total,
                 ]);
                 /*$salida = RegistroSalida::create([
                     "fecha_salida" => Carbon::now(),
@@ -404,8 +413,9 @@ class LoginController extends Controller
                 ]);*/
                 $entrada_detalle = RegistroSalidaDetalle::create([
                     "producto_id" => $id_producto->id,
+                    "peso_neto" => $productoData['peso_neto'],
                     "precio" => $productoData['precio'],
-                    "cantidad" => $productoData['cantidad'],
+                    "largo" => $productoData['largo'],
                     "registro_salida_id" => $salida->id
                 ]);
             }

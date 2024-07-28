@@ -165,7 +165,7 @@
             </tr>
             <tr>
                 <td style="padding: 0px; margin: 0px;">
-                    <p class="subt1">Suministros e Inversiones Del Perú E. I. R. L</p>
+                    <p class="subt1">Nombre de la Empresa</p>
                 </td>
             </tr>
         </table>
@@ -186,8 +186,10 @@
         <thead>
             <tr>
                 <th>Producto</th>
+                <th>Codigo</th>
                 <th>Precio</th>
-                <th>Cantidad</th>
+                <th>Lote</th>
+                <th>Peso Neto</th>
                 <th>Fecha de Entrada</th>
                 <th>Proveedor</th>
             </tr>
@@ -196,8 +198,10 @@
             @foreach($datos as $detalle)
             <tr>
                 <td>{{ $detalle['nom_producto'] }} </td>
+                <td>{{ $detalle['cod_producto'] }} </td>
                 <td>{{ $detalle['precio'] }}</td>
-                <td>{{ $detalle['cantidad'] }}</td>
+                <td>{{ $detalle['lote'] }}</td>
+                <td>{{ $detalle['peso_neto'] }}</td>
                 <td>{{ $detalle['fecha_entrada'] }}</td>
                 <td>{{ $detalle['proveedor'] }}</td>
             </tr>

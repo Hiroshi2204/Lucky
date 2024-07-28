@@ -19,15 +19,19 @@ class ReportePDFController extends Controller
 
         foreach ($productos as $producto) {
             $precio = $producto->precio ?? null;
-            $cantidad = $producto->cantidad ?? null;
+            $peso_neto = $producto->peso_neto ?? null;
             $nom_producto = $producto->producto->nom_producto ?? null;
+            $cod_producto = $producto->producto->cod_producto ?? null;
+            $lote = $producto->producto->lote ?? null;
             $fecha_entrada = $producto->registro_entrada->fecha_entrada ?? null;
             $proveedor = $producto->registro_entrada->proveedor->proveedor ?? null;
 
             $datos[] = [
                 "precio" => $precio ?? null,
-                "cantidad" => $cantidad ?? null,
+                "peso_neto" => $peso_neto ?? null,
                 "nom_producto" => $nom_producto ?? null,
+                "cod_producto" => $cod_producto ?? null,
+                "lote" => $lote ?? null,
                 "fecha_entrada" => $fecha_entrada ?? null,
                 "proveedor" => $proveedor ?? null,
             ];
