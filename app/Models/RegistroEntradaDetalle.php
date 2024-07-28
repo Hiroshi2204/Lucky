@@ -15,6 +15,7 @@ class RegistroEntradaDetalle extends Model
                             'peso_neto',
                             'precio',
                             'largo',
+                            'lote',
                             'registro_entrada_id'
                         );
     protected $primaryKey = 'id';

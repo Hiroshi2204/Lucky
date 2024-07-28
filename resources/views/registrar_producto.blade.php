@@ -45,10 +45,6 @@
                                 <input name="productos[0][cod_producto]" class="form-control" placeholder="Código" type="text">
                             </div>
                             <div class="form-group">
-                                <label for="productos[0][lote]">Lote del Producto</label>
-                                <input name="productos[0][lote]" class="form-control" placeholder="lote" type="text">
-                            </div>
-                            <div class="form-group">
                                 <label for="productos[0][color]">Color del Producto</label>
                                 <input name="productos[0][color]" class="form-control" placeholder="color" type="text">
                             </div>

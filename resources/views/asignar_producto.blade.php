@@ -10,7 +10,7 @@
     <title>Entrada</title>
     <style>
         body {
-            background-image: url('https://manfric.com/wp-content/uploads/2023/02/tipos-aire-acondicionado-industrial-manfric.jpg');
+            background-image: url('https://escopce.com/assets/images/techos-metalicos3.jpg');
         }
     </style>
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.13/css/all.css" integrity="sha384-DNOHZ68U8hZfKXOrtjWvjxusGo9WQnrNx2sqG0tfsghAvtVlRW3tvkXWZh58N9jp" crossorigin="anonymous">
@@ -62,7 +62,7 @@
 
                             <div class="form-group">
                                 <label for="productos[0][id]">Escoge el Producto</label>
-                                <select class="form-control" name="productos[0][id]">
+                                <select class="form-control producto-select" name="productos[0][id]">
                                     <option value="">Selecciona un Producto</option>
                                     <?php
                                     $conexion = new mysqli("localhost", "root", "", "lucky");
@@ -71,14 +71,21 @@
                                         die("Conexión fallida: " . $conexion->connect_error);
                                     }
 
-                                    $consulta = "SELECT id, nom_producto FROM producto WHERE estado_registro = 'A'";
+                                    $consulta = "SELECT DISTINCT nom_producto FROM producto WHERE estado_registro = 'A'";
                                     $resultado = $conexion->query($consulta);
 
                                     while ($fila = $resultado->fetch_assoc()) {
-                                        echo "<option value='{$fila['id']}'>{$fila['nom_producto']}</option>";
+                                        echo "<option value='{$fila['nom_producto']}'>{$fila['nom_producto']}</option>";
                                     }
                                     $conexion->close();
                                     ?>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="productos[0][color]">Escoge el Color</label>
+                                <select class="form-control color-select" name="productos[0][color]">
+                                    <option value="">Selecciona un Color</option>
                                 </select>
                             </div>
                             <div class="form-group">
@@ -91,7 +98,6 @@
                             </div>
                         </article>
                     </div>
-                    <br>
                 </aside>
 
             </div>
@@ -120,7 +126,40 @@
                 });
                 nuevoAside.appendTo("#productos-container");
                 contador++; // Incrementar el contador
+
+                // Agregar evento change al nuevo select de producto
+                nuevoAside.find(".producto-select").change(function() {
+                    actualizarColores($(this));
+                });
             });
+
+            // Agregar evento change a los selects de producto existentes
+            $(".producto-select").change(function() {
+                actualizarColores($(this));
+            });
+
+            function actualizarColores(productoSelect) {
+                var productoNombre = productoSelect.val();
+                var colorSelect = productoSelect.closest("aside").find(".color-select");
+
+                if (productoNombre) {
+                    $.ajax({
+                        url: '',
+                        type: 'POST',
+                        data: { producto_nombre: productoNombre },
+                        success: function(data) {
+                            var colores = JSON.parse(data);
+                            colorSelect.html('<option value="">Selecciona un Color</option>');
+
+                            $.each(colores, function(index, color) {
+                                colorSelect.append('<option value="' + color + '">' + color + '</option>');
+                            });
+                        }
+                    });
+                } else {
+                    colorSelect.html('<option value="">Selecciona un Color</option>');
+                }
+            }
         });
     </script>
     <script>
@@ -147,6 +186,34 @@
         }
     </script>
 
-</body>
+<?php
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['producto_nombre'])) {
+    $conexion = new mysqli("localhost", "root", "", "lucky");
 
+    if ($conexion->connect_error) {
+        die("Conexión fallida: " . $conexion->connect_error);
+    }
+
+    $producto_nombre = $_POST['producto_nombre'];
+
+    $consulta = "SELECT DISTINCT color FROM producto WHERE nom_producto = ? AND estado_registro = 'A'";
+    $stmt = $conexion->prepare($consulta);
+    $stmt->bind_param("s", $producto_nombre);
+    $stmt->execute();
+    $resultado = $stmt->get_result();
+
+    $colores = array();
+
+    while ($fila = $resultado->fetch_assoc()) {
+        $colores[] = $fila['color'];
+    }
+
+    echo json_encode($colores);
+
+    $stmt->close();
+    $conexion->close();
+    exit(); // Termina la ejecución del script para que solo devuelva los colores
+}
+?>
+</body>
 </html>

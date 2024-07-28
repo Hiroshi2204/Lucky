@@ -18,7 +18,7 @@ class CreateProductoTable extends Migration
             $table->string('nom_producto')->nullable();
             $table->string('cod_producto')->nullable();
             $table->string('color')->nullable();
-            $table->string('lote')->nullable();
+            //$table->string('lote')->nullable();
             $table->string('origen')->nullable();
             $table->string('peso_neto')->nullable();
             //$table->foreignId('marca_id')->nullable()->references('id')->on('marca');

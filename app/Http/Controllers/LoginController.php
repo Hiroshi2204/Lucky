@@ -255,19 +255,25 @@ class LoginController extends Controller
                     return response()->json(["resp" => "Error al crear productos: Formato de datos incorrecto"], 400);
                 }
 
-                $id_producto = Producto::where('lote',  $productoData['lote'])->first();
+                $id_producto = Producto::where('nom_producto',  $productoData['nom_producto'])
+                    ->where('cod_producto',  $productoData['cod_producto'])
+                    ->where('color',  $productoData['color'])
+                    ->where('origen',  $productoData['origen'])
+                    ->first();
                 if ($id_producto) {
-                    $peso_producto = Producto::where('lote',  $productoData['lote'])->first();
+                    $peso_producto = Producto::where('nom_producto',  $productoData['nom_producto'])
+                    // ->where('cod_producto',  $productoData['cod_producto'])
+                    // ->where('color',  $productoData['color'])
+                    // ->where('origen',  $productoData['origen'])
+                    ->first();
                     //return response()->json($cantidad_producto);
                     $peso_total =  $productoData['peso_neto'] + $peso_producto->peso_neto;
                     $producto = Producto::updateOrCreate([
-                        "lote" => $productoData['lote'],
-                    ], [
                         "nom_producto" =>  $productoData['nom_producto'],
                         "cod_producto" =>  $productoData['cod_producto'],
-                        "lote" => $productoData['lote'],
                         "color" =>  $productoData['color'],
                         "origen" => $productoData['origen'],
+                    ], [
                         "peso_neto" => $peso_total,
                         //"marca_id" =>  $productoData['marca_id']
                     ]);
@@ -288,7 +294,6 @@ class LoginController extends Controller
                     $producto = Producto::create([
                         "nom_producto" => $productoData['nom_producto'],
                         "cod_producto" => $productoData['cod_producto'],
-                        "lote" => $productoData['lote'],
                         "color" => $productoData['color'],
                         "origen" => $productoData['origen'],
                         "peso_neto" => $productoData['peso_neto'],

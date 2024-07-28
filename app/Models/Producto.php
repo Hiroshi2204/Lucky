@@ -13,7 +13,7 @@ class Producto extends Model
                             'nom_producto',
                             'cod_producto',
                             'color',
-                            'lote',
+                            //'lote',
                             'origen',
                             'peso_neto',
                             //'marca_id',
