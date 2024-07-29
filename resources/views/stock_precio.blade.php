@@ -162,17 +162,18 @@
         <p style="margin: 0;">Hora del Reporte: {{ date('H:i:s') }}</p>
     </div>
     <br>
-    <h3 style="text-align: center;">Reporte de Equipos y Productos en Stock</h3>
+    <h3 style="text-align: center;">Reporte de Ventas de Productos</h3>
     @if(count($datos) > 0)
     <table border="1" class="center-table1">
         <thead>
             <tr>
                 <th>Producto</th>
                 <th>Codigo de Producto</th>
-                <th>Cantidad</th>
-                <th>Lote</th>
-                <th>Espesor</th>
                 <th>Color</th>
+                <th>Cantidad</th>
+                <th>Espesor</th>
+                <th></th>
+                <th>Ingreso</th>
             </tr>
         </thead>
         <tbody>
@@ -180,10 +181,11 @@
             <tr>
                 <td>{{ $detalle['nom_producto'] }}</td>
                 <td>{{ $detalle['cod_producto'] }}</td>
-                <td>{{ $detalle['largo'] }}</td>
-                <td>{{ $detalle['lote'] }}</td>
-                <td>{{ $detalle['espesor'] }}</td>
                 <td>{{ $detalle['color'] }}</td>
+                <td>{{ $detalle['largo'] }}</td>
+                <td>{{ $detalle['espesor'] }}</td>
+                <th></th>
+                <td>{{ $detalle['ganancia'] }}</td>
             </tr>
             @endforeach
         </tbody>

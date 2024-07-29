@@ -143,7 +143,7 @@
 <div style="text-align: center; margin-bottom: 10px;">
     <table style="width: 100%;" border="1" class="center-table">
         <tr>
-            <td class="imgk"><img src="https://i1.wp.com/seindelperu.com/wp-content/uploads/2019/01/cropped-SEINDEL-PERU-01-crop.png?fit=1574%2C369&ssl=1" width="500" height="10%"></td>
+            <td class="imgk"><img src="https://www.doblamos.com/wp-content/uploads/2021/10/estructuras-metalicas.png" width="500" height="15%"></td>
             <td style="padding: 0px; margin: 0px;" rowspan="2">
                 <p class="subt1">Versión 01</p>
                 <p class="subt1">Página 1</p>
@@ -151,7 +151,7 @@
         </tr>
         <tr>
             <td style="padding: 0px; margin: 0px;">
-                <p class="subt1">Suministros e Inversiones Del Perú E. I. R. L</p>
+                <p class="subt1">MACROTECHOS LOPEZ S.A.C</p>
             </td>
         </tr>
     </table>
@@ -169,20 +169,22 @@
     <thead>
         <tr>
             <th>Producto</th>
+            <th>Codigo</th>
             <th>Precio</th>
+            <th>Lote</th>
             <th>Cantidad</th>
             <th>Fecha de Salida</th>
-            <th>Destinatario</th>
         </tr>
     </thead>
     <tbody>
         @foreach($datos as $detalle)
         <tr>
-            <td>{{ $detalle['nom_producto'] }}</td>
+            <td>{{ $detalle['nom_producto'] }} </td>
+            <td>{{ $detalle['cod_producto'] }} </td>
             <td>{{ $detalle['precio'] }}</td>
-            <td>{{ $detalle['cantidad'] }}</td>
+            <td>{{ $detalle['lote'] }}</td>
+            <td>{{ $detalle['largo'] }}</td>
             <td>{{ $detalle['fecha_salida'] }}</td>
-            <td>{{ $detalle['destinatario'] }}</td>
         </tr>
         @endforeach
     </tbody>

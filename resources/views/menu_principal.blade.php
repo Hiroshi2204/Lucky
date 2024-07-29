@@ -22,7 +22,7 @@
     body {
       margin: 0;
       padding: 0;
-      background: url('https://p4.wallpaperbetter.com/wallpaper/437/330/385/industry-factory-metal-iron-wallpaper-preview.jpg') no-repeat center center fixed;
+      background: url('https://img.freepik.com/foto-gratis/fondo-material-hierro-rayas-verticales_23-2148801255.jpg') no-repeat center center fixed;
       /* Propiedades para hacer que la imagen de fondo cubra toda la pantalla */
       -webkit-background-size: cover;
       -moz-background-size: cover;
@@ -35,11 +35,11 @@
       align-items: center;
       justify-content: space-between;
       padding: 2rem;
-      background-color: #C6D328;
+      background-color: #0deaea;
     }
 
     .logo {
-      max-width: 250px;
+      max-width: 550px;
     }
 
     .nav-list {
@@ -166,27 +166,14 @@
 <body>
   @csrf
   <header>
-    <!-- <img class="logo"  src="https://i1.wp.com/seindelperu.com/wp-content/uploads/2019/01/cropped-SEINDEL-PERU-01-crop.png?fit=1574%2C369&ssl=1" alt="Logo"> -->
-    <img class="logo" src="" alt="Logo">
+    <img class="logo"  src="{{ asset('img\logo.png') }}" alt="Logo" style="width: 2000px; height: 80px;">
+    <!-- <img class="logo" src="" alt="Logo"> -->
     <button id="abrir" class="abrir-menu"><i class="bi bi-list"></i></button>
     <nav class="navbar navbar-expand-lg bg-body-tertiary">
       <ul class="navbar-nav">
         <li class="active">
           <a href="#" class="nav-link">Inicio</a>
         </li>
-        <!-- <li class="nav-item dropdown">
-          <a href="#" class="nav-link dropdown-toggle" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-            Trabajadores
-          </a>
-          <ul class="dropdown-menu">
-            <li><a class="dropdown-item" href="{{route('asignar_rol')}}">Asignar Rol</a></li>
-            <li><a class="dropdown-item" href="{{route('cambiar_rol', ['id'=> $id])}}">Cambiar Rol</a></li>
-            <li>
-              <hr class="dropdown-divider">
-            </li>
-            <li><a class="dropdown-item" href="{{route('buscar_trabajador')}}">Buscar Trabajador</a></li>
-          </ul>
-        </li> -->
         <li class="nav-item dropdown"> <!-- Agrega la clase dropdown al elemento principal -->
           <a href="#" class="nav-link dropdown-toggle" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
             Productos y Equipos
@@ -194,31 +181,13 @@
           <ul class="dropdown-menu">
             <li><a class="dropdown-item" href="{{route('registrar_producto')}}">Registrar Productos</a></li>
             <li><a class="dropdown-item" href="{{route('buscar_producto')}}">Ver Productos</a></li>
-            <li><a class="dropdown-item" href="{{route('actualizar_producto')}}">Actualizar un Producto</a></li>
-            <li><a class="dropdown-item" href="{{route('eliminar_producto')}}">Eliminar un Producto</a></li>
+            <!-- <li><a class="dropdown-item" href="{{route('actualizar_producto')}}">Actualizar un Producto</a></li>
+            <li><a class="dropdown-item" href="{{route('eliminar_producto')}}">Eliminar un Producto</a></li> -->
             <li>
               <hr class="dropdown-divider">
             </li>
             <li><a class="dropdown-item" href="{{route('asignar_producto')}}">Entrada Productos</a></li>
             <li><a class="dropdown-item" href="{{route('exportar_producto')}}">Salida Productos</a></li>
-          </ul>
-        </li>
-        <li class="nav-item dropdown"> 
-          <a href="#" class="nav-link dropdown-toggle" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-            Proveedores y Destinatarios
-          </a>
-          <ul class="dropdown-menu">
-            <li><a class="dropdown-item" href="{{route('proveedor_crear')}}">Crear Proveedor</a></li>
-            <li><a class="dropdown-item" href="{{route('proveedor_actualizar')}}">Actualizar Proveedor</a></li>
-            <li><a class="dropdown-item" href="{{route('proveedor_eliminar')}}">Eliminar Proveedor</a></li>
-            <li><a class="dropdown-item" href="{{route('proveedor_ver')}}">Ver Proveedores</a></li>
-            <li>
-              <hr class="dropdown-divider">
-            </li>
-            <li><a class="dropdown-item" href="{{route('destinatario_crear')}}">Crear Destinatario</a></li>
-            <li><a class="dropdown-item" href="{{route('destinatario_actualizar')}}">Actualizar Destinatario</a></li>
-            <li><a class="dropdown-item" href="{{route('destinatario_eliminar')}}">Eliminar Destinatario</a></li>
-            <li><a class="dropdown-item" href="{{route('destinatario_ver')}}">Ver Destinatarios</a></li>
           </ul>
         </li>
         <li class="nav-item dropdown"> <!-- Agrega la clase dropdown al elemento principal -->
@@ -232,6 +201,7 @@
               <hr class="dropdown-divider">
             </li>
             <li><a class="dropdown-item" href="{{ route('generar_pdf_stock') }}">Consulta de Stock de Productos</a></li>
+            <li><a class="dropdown-item" href="{{ route('generar_pdf_precio') }}">Consulta de Precio</a></li>
           </ul>
         </li>
         <li class="nav-item">

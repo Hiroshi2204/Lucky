@@ -13,7 +13,7 @@
 	<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.1/css/all.css" integrity="sha384-gfdkjb5BdAXd+lj+gudLWI+BXq4IuLW5IT+brZEZsLFm++aCMlF1V92rMkPaX4PP" crossorigin="anonymous">
 	<style>
 		body {
-			background: url(https://www.construcsurperu.com/wp-content/uploads/2022/07/calaminas-03.jpg);
+			background: url(https://png.pngtree.com/thumb_back/fw800/background/20231231/pngtree-glossy-brushed-metal-texture-abstract-and-technological-background-image_13908321.png);
 			font-family: 'PT Sans', Helvetica, Arial, sans-serif;
 			color: #fff;
 			background-repeat: no-repeat;
@@ -68,7 +68,7 @@
 			width: 390px;
 			margin-top: auto;
 			margin-bottom: auto;
-			background: #FFBD00;
+			background: #1783f7;
 			position: relative;
 			display: flex;
 			justify-content: center;
@@ -147,7 +147,7 @@
 			<div class="user_card">
 				<div class="d-flex justify-content-center">
 					<div class="brand_logo_container">
-						<img src="https://i1.wp.com/seindelperu.com/wp-content/uploads/2019/01/logo_seindel.png?fit=336%2C336&ssl=1" class="brand_logo" alt="Logo">
+						<img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQoujtR9A7EDQUK-21YDoVIUR9BtjNa2SE_u3OAikPLkVWpFZEAwyyPILFROp8k3SjSOao&usqp=CAU" class="brand_logo" alt="Logo">
 					</div>
 				</div>
 				<div class="d-flex justify-content-center form_container">
@@ -188,11 +188,11 @@
 					</script>
 				</div>
 
-				<div class="mt-4">
+				<!-- <div class="mt-4">
 					<div class="d-flex justify-content-center links" style="color: black;">
 						¿No tienes una cuenta? <a href="{{route('usuario')}}" class="ml-2">Registrate</a>
 					</div>
-				</div>
+				</div> -->
 			</div>
 		</div>
 	</div>

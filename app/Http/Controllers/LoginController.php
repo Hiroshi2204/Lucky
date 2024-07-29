@@ -145,7 +145,7 @@ class LoginController extends Controller
     //------------------------------------------------------------------------
     public function buscar_producto()
     {
-        $productos = Producto::with('marca')
+        $productos = Producto::with('color')
             ->where('estado_registro', 'A')
             ->get();
 
@@ -153,16 +153,16 @@ class LoginController extends Controller
 
         foreach ($productos as $producto) {
             $nom_producto = $producto->nom_producto ?? null;
-            $descripcion = $producto->descripcion ?? null;
-            $cantidad = $producto->cantidad ?? null;
-            $marca = $producto->marca->nombre ?? null;
+            $cod_producto = $producto->cod_producto ?? null;
+            $largo = $producto->largo ?? null;
+            $color = $producto->color->nombre ?? null;
             $estado_registro = $producto->estado_registro ?? null;
 
             $datos[] = [
                 "nom_producto" => $nom_producto ?? null,
-                "descripcion" => $descripcion ?? null,
-                "cantidad" => $cantidad ?? null,
-                "marca" => $marca ?? null,
+                "cod_producto" => $cod_producto ?? null,
+                "largo" => $largo ?? null,
+                "color" => $color ?? null,
                 "estado_registro" => $estado_registro ?? null,
             ];
         }
@@ -341,7 +341,7 @@ class LoginController extends Controller
         try {
             $entrada = RegistroEntrada::create([
                 "fecha_entrada" => Carbon::now(),
-                "proveedor_id" => $request->input('proveedor_id'),
+                // "proveedor_id" => $request->input('proveedor_id'),
                 "almacen_id" => 1
             ]);
             foreach ($productos as $productoData) {
@@ -349,28 +349,11 @@ class LoginController extends Controller
                     DB::rollback();
                     //return response()->json(["resp" => "Error al exportar productos: Formato de datos incorrecto"], 400);
                 }
-                $id_producto = Producto::where('id', $productoData['id'])->first();
-                //return response()->json($id_producto);
-                //if ($productoData['cantidad'] > $id_producto->cantidad) return response()->json(["resp" => "No hay suficientes productos"]);
-                // $lote_total = $id_producto->lote + $productoData['lote'];
-                // $producto = Producto::updateOrCreate([
-                //     "id" => $productoData['id'],
-                // ], [
-                //     "lote" => $lote_total,
-                //     "cod_producto" =>  $productoData['cod_producto'],
-                //     "color" =>  $productoData['color'],
-                // ]);
-                /*$salida = RegistroSalida::create([
-                    "fecha_salida" => Carbon::now(),
-                    "proveedor_id" => $productoData['proveedor_id'],
-                    "almacen_id" => 1
-                ]);*/
+                $producto = Producto::where('cod_producto', $productoData['id'])->first();
                 $entrada_detalle = RegistroEntradaDetalle::create([
-                    "producto_id" => $id_producto->id,
-                    //"origen" => $productoData['origen'],
-                    //"peso_neto" => $id_producto->peso_neto,
+                    "producto_id" => $producto->id,
                     "precio" => $productoData['precio'],
-                    "largo" => $productoData['largo'],
+                    "largo" => $producto->largo,
                     "registro_entrada_id" => $entrada->id
                 ]);
             }
@@ -396,7 +379,7 @@ class LoginController extends Controller
         try {
             $salida = RegistroSalida::create([
                 "fecha_salida" => Carbon::now(),
-                "destinatario_id" => $request->input('destinatario_id'),
+                //"destinatario_id" => $request->input('destinatario_id'),
                 "almacen_id" => 1
             ]);
             foreach ($productos as $productoData) {
@@ -404,14 +387,15 @@ class LoginController extends Controller
                     DB::rollback();
                     //return response()->json(["resp" => "Error al exportar productos: Formato de datos incorrecto"], 400);
                 }
-                $id_producto = Producto::where('id', $productoData['id'])->first();
+                $id_producto = Producto::where('cod_producto', $productoData['id'])->first();
                 //return response()->json($id_producto);
-                if ($productoData['peso_neto'] > $id_producto->registro_entreda_detalle->peso_neto) return response()->json(["resp" => "No hay suficientes productos"]);
-                $peso_total = $id_producto->registro_entreda_detalle->peso_neto - $productoData['peso_neto'];
+                if ($productoData['largo'] > $id_producto->largo)
+                return response()->json(["resp" => "No hay suficientes productos"]);
+                $largo_total = $id_producto->largo - $productoData['largo'];
                 $producto = Producto::updateOrCreate([
                     "id" => $productoData['id'],
                 ], [
-                    "cantidad" => $peso_total,
+                    "largo" => $largo_total,
                 ]);
                 /*$salida = RegistroSalida::create([
                     "fecha_salida" => Carbon::now(),
@@ -420,7 +404,7 @@ class LoginController extends Controller
                 ]);*/
                 $entrada_detalle = RegistroSalidaDetalle::create([
                     "producto_id" => $id_producto->id,
-                    "peso_neto" => $productoData['peso_neto'],
+                    //"peso_neto" => $productoData['peso_neto'],
                     "precio" => $productoData['precio'],
                     "largo" => $productoData['largo'],
                     "registro_salida_id" => $salida->id

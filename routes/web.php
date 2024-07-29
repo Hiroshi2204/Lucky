@@ -36,6 +36,7 @@ Route::get('/menu/{id}', [LoginController::class, 'mostrar_menu'])->name('mostra
 Route::get('/generar_pdf_entrada', [ReportePDFController::class, 'reporte_equipos_entrada'])->name('generar_pdf_entrada');
 Route::get('/generar_pdf_salida', [ReportePDFController::class, 'reporte_equipos_salida'])->name('generar_pdf_salida');
 Route::get('/generar_pdf_stock', [ReportePDFController::class, 'reporte_equipos_stock'])->name('generar_pdf_stock');
+Route::get('/generar_pdf_precio', [ReportePDFController::class, 'reporte_equipos_precio'])->name('generar_pdf_precio');
 
 
 Route::get('/asignar_rol', [LoginController::class, 'asignar_rol'])->name('asignar_rol');

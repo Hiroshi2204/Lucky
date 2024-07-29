@@ -10,7 +10,7 @@
     <title>Salida</title>
     <style>
         body {
-            background-image: url('https://manfric.com/wp-content/uploads/2023/02/tipos-aire-acondicionado-industrial-manfric.jpg');
+            background-image: url('https://st3.depositphotos.com/6550340/19239/i/450/depositphotos_192395946-stock-photo-metal-slate-roof-background.jpg');
         }
     </style>
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.13/css/all.css" integrity="sha384-DNOHZ68U8hZfKXOrtjWvjxusGo9WQnrNx2sqG0tfsghAvtVlRW3tvkXWZh58N9jp" crossorigin="anonymous">
@@ -32,7 +32,7 @@
                 <button type="submit" class="btn btn-primary mx-auto d-block" style="width: 60%;" onclick="mostrarAlerta()">Exportar Productos</button>
             </div>
             <br><br>
-            <div class="form-group">
+            <!-- <div class="form-group">
                 <label for="destinatario_id">Escoge el Destinatario</label>
                 <select class="form-control" name="destinatario_id">
                     <option value="">Selecciona un Destinatario</option>
@@ -52,7 +52,7 @@
                     $conexion->close();
                     ?>
                 </select>
-            </div>
+            </div> -->
             <div class="row" id="productos-container">
 
                 <aside class="col-sm-4">
@@ -62,8 +62,8 @@
 
                             <div class="form-group">
                                 <label for="productos[0][id]">Escoge el Producto</label>
-                                <select class="form-control" name="productos[0][id]">
-                                    <option value="">Selecciona un Producto</option>
+                                <select class="form-control producto-select" name="productos[0][id]">
+                                    <option value="">Selecciona un Producto por codigo</option>
                                     <?php
                                     $conexion = new mysqli("localhost", "root", "", "lucky");
 
@@ -71,19 +71,19 @@
                                         die("Conexión fallida: " . $conexion->connect_error);
                                     }
 
-                                    $consulta = "SELECT id, nom_producto FROM producto WHERE estado_registro = 'A'";
+                                    $consulta = "SELECT id, cod_producto FROM producto WHERE estado_registro = 'A'";
                                     $resultado = $conexion->query($consulta);
 
                                     while ($fila = $resultado->fetch_assoc()) {
-                                        echo "<option value='{$fila['id']}'>{$fila['nom_producto']}</option>";
+                                        echo "<option value='{$fila['id']}'>{$fila['cod_producto']}</option>";
                                     }
                                     $conexion->close();
                                     ?>
                                 </select>
                             </div>
                             <div class="form-group">
-                                <label for="productos[0][cantidad]">Cantidad del Producto</label>
-                                <input name="productos[0][cantidad]" class="form-control" placeholder="0" type="number">
+                                <label for="productos[0][largo]">Largo del Producto</label>
+                                <input name="productos[0][largo]" class="form-control" placeholder="0" type="number">
                             </div>
                             <div class="form-group">
                                 <label for="productos[0][precio]">Precio del Producto</label>
@@ -97,9 +97,9 @@
             </div>
 
         </form>
-        <div class="col-sm-4">
+        <!-- <div class="col-sm-4">
             <button class="btn btn-primary" id="agregarProducto">Agregar otro producto</button>
-        </div>
+        </div> -->
         <br>
 
     </div>
@@ -122,6 +122,21 @@
                 contador++; // Incrementar el contador
             });
         });
+        function mostrarAlerta() {
+            var mensaje = "¡No hay suficientes productos!";
+            var tipoAlerta = "danger"; // Puedes cambiar a "info", "warning" o "success" según el caso
+
+            // Crea la alerta usando Bootstrap
+            var alerta = `<div class="alert alert-${tipoAlerta} alert-dismissible fade show" role="alert">
+                            ${mensaje}
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                          </div>`;
+
+            // Agrega la alerta al final del cuerpo del documento
+            $('body').append(alerta);
+        }
     </script>
     <script>
         document.getElementById('btnCancelar').onclick = function() {

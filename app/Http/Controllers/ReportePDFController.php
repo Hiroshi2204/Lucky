@@ -19,21 +19,19 @@ class ReportePDFController extends Controller
 
         foreach ($productos as $producto) {
             $precio = $producto->precio ?? null;
-            $peso_neto = $producto->peso_neto ?? null;
             $nom_producto = $producto->producto->nom_producto ?? null;
             $cod_producto = $producto->producto->cod_producto ?? null;
             $lote = $producto->producto->lote ?? null;
+            $largo = $producto->largo ?? null;
             $fecha_entrada = $producto->registro_entrada->fecha_entrada ?? null;
-            $proveedor = $producto->registro_entrada->proveedor->proveedor ?? null;
 
             $datos[] = [
                 "precio" => $precio ?? null,
-                "peso_neto" => $peso_neto ?? null,
                 "nom_producto" => $nom_producto ?? null,
                 "cod_producto" => $cod_producto ?? null,
                 "lote" => $lote ?? null,
+                "largo" => $largo ?? null,
                 "fecha_entrada" => $fecha_entrada ?? null,
-                "proveedor" => $proveedor ?? null,
             ];
         }
 
@@ -42,7 +40,7 @@ class ReportePDFController extends Controller
     }
     public function reporte_equipos_stock()
     {
-        $productos = Producto::with('marca')
+        $productos = Producto::with('color')
             ->where('estado_registro', 'A')
             ->get();
 
@@ -50,21 +48,60 @@ class ReportePDFController extends Controller
 
         foreach ($productos as $producto) {
             $nom_producto = $producto->nom_producto ?? null;
-            $descripcion = $producto->descripcion ?? null;
-            $cantidad = $producto->cantidad ?? null;
-            $marca = $producto->marca->nombre ?? null;
+            $cod_producto = $producto->cod_producto ?? null;
+            $largo = $producto->largo ?? null;
+            $lote = $producto->lote ?? null;
+            $espesor = $producto->espesor ?? null;
+            $color = $producto->color->nombre ?? null;
 
             $datos[] = [
                 "nom_producto" => $nom_producto ?? null,
-                "descripcion" => $descripcion ?? null,
-                "cantidad" => $cantidad ?? null,
-                "codigo" => $codigo ?? null,
-                "marca" => $marca ?? null,
+                "cod_producto" => $cod_producto ?? null,
+                "largo" => $largo ?? null,
+                "lote" => $lote ?? null,
+                "espesor" => $espesor ?? null,
+                "color" => $color ?? null,
             ];
         }
 
         $pdf = Pdf::loadView('stock_equipos', compact('datos'));
         return $pdf->stream('stock_equipos');
+    }
+    public function reporte_equipos_precio()
+    {
+        $productos = Producto::with('color')->where('estado_registro', 'A')->get();
+        $producto_entrada = RegistroEntradaDetalle::with('producto','registro_entrada')->get();
+        $producto_salida = RegistroSalidaDetalle::with('producto', 'registro_salida')->get();
+        $datos = [];
+        
+        foreach ($productos as $producto) {
+            
+            $nom_producto = $producto->nom_producto ?? null;
+            $cod_producto = $producto->cod_producto ?? null;
+            $color = $producto->color->nombre ?? null;
+            $largo = $producto->largo ?? null;
+            $espesor = $producto->espesor ?? null;
+            if($producto->espesor == "0.30"){
+                $ganancia = $producto->largo * 15;
+            }
+            else if($producto->espesor == "0.35"){
+                $ganancia = $producto->largo * 17.5;
+            }
+            else if($producto->espesor == "0.40"){
+                $ganancia = $producto->largo * 20.5;
+            }
+            $datos[] = [
+                "nom_producto" => $nom_producto ?? null,
+                "cod_producto" => $cod_producto ?? null,
+                "color" => $color ?? null,
+                "largo" => $largo ?? null,
+                "espesor" => $espesor ?? null,
+                "ganancia" => $ganancia ?? null,
+            ];
+        }
+
+        $pdf = Pdf::loadView('stock_precio', compact('datos'));
+        return $pdf->stream('stock_precio');
     }
     public function reporte_equipos_salida()
     {
@@ -74,17 +111,19 @@ class ReportePDFController extends Controller
 
         foreach ($productos as $producto) {
             $precio = $producto->precio ?? null;
-            $cantidad = $producto->cantidad ?? null;
             $nom_producto = $producto->producto->nom_producto ?? null;
+            $cod_producto = $producto->producto->cod_producto ?? null;
+            $lote = $producto->producto->lote ?? null;
+            $largo = $producto->producto->largo ?? null;
             $fecha_salida = $producto->registro_salida->fecha_salida ?? null;
-            $destinatario = $producto->registro_salida->destinatario->destinatario ?? null;
 
             $datos[] = [
                 "precio" => $precio ?? null,
-                "cantidad" => $cantidad ?? null,
                 "nom_producto" => $nom_producto ?? null,
+                "cod_producto" => $cod_producto ?? null,
+                "lote" => $lote ?? null,
+                "largo" => $largo ?? null,
                 "fecha_salida" => $fecha_salida ?? null,
-                "destinatario" => $destinatario ?? null,
             ];
         }
 

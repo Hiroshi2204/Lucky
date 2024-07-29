@@ -5,7 +5,7 @@
 <style>
     body {
         /* background-color: #EF4343; */
-        background: url('https://blog.resurtidora.mx/hubfs/Importancia-del-aire-acondicionado-en-oficinas-empresas.jpeg') no-repeat center center fixed;
+        background: url('https://img.freepik.com/foto-gratis/representacion-3d-fondo-abstracto-blanco-negro_23-2150913879.jpg') no-repeat center center fixed;
         background-size: cover;
         /* Hace que la imagen cubra toda la pantalla */
         background-position: center;
@@ -69,7 +69,7 @@
     <div class="row">
         <div class="col-md-3">
             <div class="contact-info">
-                <img src="https://cdn.icon-icons.com/icons2/1526/PNG/512/checklist_106575.png" alt="image" />
+                <!-- <img src="https://cdn.icon-icons.com/icons2/1526/PNG/512/checklist_106575.png" alt="image" /> -->
                 <h2>Mira los Productos !!!</h2>
                 <h4>No puede faltar ningun producto </h4>
             </div>
@@ -83,20 +83,20 @@
                     <table border="2" class="center-table1 text-center">
                         <thead>
                             <tr>
+                                <th>Codigo</th>
                                 <th>Producto</th>
-                                <th>Descripcion</th>
                                 <th>Cantidad</th>
-                                <th>Marca</th>
+                                <th>Color</th>
                                 <th>Estado de Registro</th>
                             </tr>
                         </thead>
                         <tbody>
                             @foreach($datos as $producto)
                             <tr>
+                                <td>{{$producto['cod_producto']}}</td>
                                 <td>{{$producto['nom_producto']}}</td>
-                                <td>{{$producto['descripcion']}}</td>
-                                <td>{{$producto['cantidad']}}</td>
-                                <td>{{$producto['marca']}}</td>
+                                <td>{{$producto['largo']}}</td>
+                                <td>{{$producto['color']}}</td>
                                 <td>{{$producto['estado_registro']}}</td>
                             </tr>
                             @endforeach
@@ -124,7 +124,7 @@
                 </div> -->
             </div>
             <div class="col-sm-offset-2 col-sm-10">
-                <button type="button" class="btn btn-default" id="btnCancelar" style="background-color: #B92727;">Salir</button>
+                <button type="button" class="btn btn-default" id="btnCancelar" style="background-color: #ff1313;">Salir</button>
             </div>
             <script>
                 document.getElementById('btnCancelar').addEventListener('click', function() {

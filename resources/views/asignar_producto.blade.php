@@ -75,7 +75,7 @@
                                     $resultado = $conexion->query($consulta);
 
                                     while ($fila = $resultado->fetch_assoc()) {
-                                        echo "<option value='{$fila['cod_producto']}'>{$fila['cod_producto']}</option>";
+                                        echo "<option value='{$fila['id']}'>{$fila['cod_producto']}</option>";
                                     }
                                     $conexion->close();
                                     ?>
@@ -96,9 +96,9 @@
             </div>
 
         </form>
-        <div class="col-sm-4">
+        <!-- <div class="col-sm-4">
             <button class="btn btn-primary" id="agregarProducto">Agregar otro producto</button>
-        </div>
+        </div> -->
         <br>
 
     </div>
@@ -125,34 +125,6 @@
                     actualizarColores($(this));
                 });
             });
-
-            // Agregar evento change a los selects de producto existentes
-            $(".producto-select").change(function() {
-                actualizarColores($(this));
-            });
-
-            function actualizarColores(productoSelect) {
-                var productoNombre = productoSelect.val();
-                var colorSelect = productoSelect.closest("aside").find(".color-select");
-
-                if (productoNombre) {
-                    $.ajax({
-                        url: '',
-                        type: 'POST',
-                        data: { producto_nombre: productoNombre },
-                        success: function(data) {
-                            var colores = JSON.parse(data);
-                            colorSelect.html('<option value="">Selecciona un Color</option>');
-
-                            $.each(colores, function(index, color) {
-                                colorSelect.append('<option value="' + color + '">' + color + '</option>');
-                            });
-                        }
-                    });
-                } else {
-                    colorSelect.html('<option value="">Selecciona un Color</option>');
-                }
-            }
         });
     </script>
     <script>
@@ -178,35 +150,5 @@
             $('body').append(alerta);
         }
     </script>
-
-<?php
-if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['producto_nombre'])) {
-    $conexion = new mysqli("localhost", "root", "", "lucky");
-
-    if ($conexion->connect_error) {
-        die("Conexión fallida: " . $conexion->connect_error);
-    }
-
-    $producto_nombre = $_POST['producto_nombre'];
-
-    $consulta = "SELECT DISTINCT color FROM producto WHERE nom_producto = ? AND estado_registro = 'A'";
-    $stmt = $conexion->prepare($consulta);
-    $stmt->bind_param("s", $producto_nombre);
-    $stmt->execute();
-    $resultado = $stmt->get_result();
-
-    $colores = array();
-
-    while ($fila = $resultado->fetch_assoc()) {
-        $colores[] = $fila['color'];
-    }
-
-    echo json_encode($colores);
-
-    $stmt->close();
-    $conexion->close();
-    exit(); // Termina la ejecución del script para que solo devuelva los colores
-}
-?>
 </body>
 </html>

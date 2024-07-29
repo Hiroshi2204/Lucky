@@ -10,20 +10,19 @@
     <title>Registrar</title>
     <style>
         body {
-            background-image: url('https://manfric.com/wp-content/uploads/2023/02/tipos-aire-acondicionado-industrial-manfric.jpg');
+            background-image: url('https://st2.depositphotos.com/1548456/7111/i/450/depositphotos_71114641-stock-photo-two-types-of-metal-roofs.jpg');
         }
     </style>
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.13/css/all.css" integrity="sha384-DNOHZ68U8hZfKXOrtjWvjxusGo9WQnrNx2sqG0tfsghAvtVlRW3tvkXWZh58N9jp" crossorigin="anonymous">
 </head>
 
 <body>
-    <div class="container" style="background-color: #A5FFEF;">
+    <div class="container" style="background-color: #f8ffa5;">
         <br>
         <h2 class="text-center" style="color: red;">REGISTRA TODOS LOS PRODUCTOS AL SISTEMA</h2>
         <div class="d-flex justify-content-center align-items-center" style="height: 10vh;">
             <button type="button" class="btn btn-primary" id="btnCancelar" style="background-color: #B92727; color:aliceblue">Salir</button>
         </div>
-        <br>
         <form action="{{ route('registrar_producto') }}" method="post">
             @csrf
             <div class="d-flex justify-content-center align-items-center" style="height: 5vh;">
