@@ -1,5 +1,7 @@
 <?php
 
+use ColorSeeder as GlobalColorSeeder;
+use Database\Seeders\ColorSeeder;
 use Database\Seeders\ProductoSeeder;
 use Illuminate\Database\Seeder;
 use ProductoSeeder as GlobalProductoSeeder;
@@ -22,6 +24,7 @@ class DatabaseSeeder extends Seeder
                 $this->call(ProveedorSeeder::class);
                 $this->call(DestinatarioSeeder::class);
                 $this->call(MarcaSeeder::class);
+                $this->call(GlobalColorSeeder::class);
                 $this->call(RolSeeder::class);
                 $this->call(EmpresaSeeder::class);
                 $this->call(AlmacenSeeder::class);

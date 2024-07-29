@@ -17,7 +17,6 @@
 </head>
 
 <body>
-    @csrf
     <div class="container" style="background-color: #A5FFEF;">
         <br>
         <h2 class="text-center" style="color: red;">REGISTRA TODOS LOS PRODUCTOS AL SISTEMA</h2>
@@ -45,39 +44,48 @@
                                 <input name="productos[0][cod_producto]" class="form-control" placeholder="Código" type="text">
                             </div>
                             <div class="form-group">
-                                <label for="productos[0][color]">Color del Producto</label>
-                                <input name="productos[0][color]" class="form-control" placeholder="color" type="text">
+                                <label for="productos[0][color_id]">Color del Producto</label>
+                                <select class="form-control producto-select" name="productos[0][color_id]">
+                                    <option value="">Selecciona un Color</option>
+                                    <?php
+                                    $conexion = new mysqli("localhost", "root", "", "lucky");
+
+                                    if ($conexion->connect_error) {
+                                        die("Conexión fallida: " . $conexion->connect_error);
+                                    }
+
+                                    $consulta = "SELECT id, nombre FROM color";
+                                    $resultado = $conexion->query($consulta);
+
+                                    while ($fila = $resultado->fetch_assoc()) {
+                                        echo "<option value='{$fila['id']}'>{$fila['nombre']}</option>";
+                                    }
+                                    $conexion->close();
+                                    ?>
+                                </select>
                             </div>
                             <div class="form-group">
-                                <label for="productos[0][origen]">Origen del Producto</label>
-                                <input name="productos[0][origen]" class="form-control" placeholder="color" type="text">
+                                <label for="productos[0][espesor]">Espesor del Producto</label>
+                                <input name="productos[0][espesor]" class="form-control" placeholder="espesor" type="text">
                             </div>
                             <div class="form-group">
-                                <label for="productos[0][peso_neto]">Peso Neto del Producto</label>
-                                <input name="productos[0][peso_neto]" class="form-control" placeholder="color" type="text">
-                            </div>
-                            <!-- <div class="form-group">
-                                <label for="productos[0][proveedor]">Proveedor del Producto</label>
-                                <input name="productos[0][proveedor]" class="form-control" placeholder="Proveedor" type="text">
+                                <label for="productos[0][largo]">Largo del Producto</label>
+                                <input name="productos[0][largo]" class="form-control" placeholder="largo" type="number">
                             </div>
                             <div class="form-group">
-                                <label for="productos[0][precio]">Precio del Producto</label>
-                                <input name="productos[0][precio]" class="form-control" placeholder="Precio" type="number">
-                            </div> -->
-                            
+                                <label for="productos[0][lote]">Lote del Producto</label>
+                                <input name="productos[0][lote]" class="form-control" placeholder="lote" type="text">
+                            </div>
                         </article>
                     </div>
                     <br>
                 </aside>
-
             </div>
-
         </form>
         <div class="col-sm-4">
             <button class="btn btn-primary" id="agregarProducto">Agregar otro producto</button>
         </div>
         <br>
-
     </div>
     <br><br>
     <script>
@@ -122,8 +130,6 @@
             window.history.back();
         };
     </script>
-
-
 </body>
 
 </html>

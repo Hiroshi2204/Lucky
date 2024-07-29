@@ -17,10 +17,11 @@ class CreateProductoTable extends Migration
             $table->id();
             $table->string('nom_producto')->nullable();
             $table->string('cod_producto')->nullable();
-            $table->string('color')->nullable();
-            //$table->string('lote')->nullable();
-            $table->string('origen')->nullable();
-            $table->string('peso_neto')->nullable();
+            $table->foreignId('color_id')->nullable()->references('id')->on('color');
+            $table->string('lote')->nullable();
+            $table->integer('largo')->nullable();
+            $table->string('espesor')->nullable();
+            //$table->string('peso_neto')->nullable();
             //$table->foreignId('marca_id')->nullable()->references('id')->on('marca');
             $table->char('estado_registro')->default('A');
             $table->timestamps();

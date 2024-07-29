@@ -12,10 +12,10 @@ class RegistroEntradaDetalle extends Model
     protected $fillable = array(
                             'producto_id',
                             //'origen',
-                            'peso_neto',
+                            //'peso_neto',
                             'precio',
                             'largo',
-                            'lote',
+                            //'lote',
                             'registro_entrada_id'
                         );
     protected $primaryKey = 'id';

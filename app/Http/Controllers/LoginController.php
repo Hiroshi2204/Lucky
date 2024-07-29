@@ -257,24 +257,24 @@ class LoginController extends Controller
 
                 $id_producto = Producto::where('nom_producto',  $productoData['nom_producto'])
                     ->where('cod_producto',  $productoData['cod_producto'])
-                    ->where('color',  $productoData['color'])
-                    ->where('origen',  $productoData['origen'])
+                    // ->where('color',  $productoData['color'])
+                    // ->where('origen',  $productoData['origen'])
                     ->first();
                 if ($id_producto) {
-                    $peso_producto = Producto::where('nom_producto',  $productoData['nom_producto'])
+                    $peso_producto = Producto::where('cod_producto',  $productoData['cod_producto'])
                     // ->where('cod_producto',  $productoData['cod_producto'])
                     // ->where('color',  $productoData['color'])
                     // ->where('origen',  $productoData['origen'])
                     ->first();
                     //return response()->json($cantidad_producto);
-                    $peso_total =  $productoData['peso_neto'] + $peso_producto->peso_neto;
+                    $largo_total =  $productoData['largo'] + $peso_producto->largo;
                     $producto = Producto::updateOrCreate([
                         "nom_producto" =>  $productoData['nom_producto'],
                         "cod_producto" =>  $productoData['cod_producto'],
-                        "color" =>  $productoData['color'],
+                        "color_id" =>  $productoData['color_id'],
                         "origen" => $productoData['origen'],
                     ], [
-                        "peso_neto" => $peso_total,
+                        "peso_neto" => $largo_total,
                         //"marca_id" =>  $productoData['marca_id']
                     ]);
                     // $entrada = RegistroEntrada::create([
@@ -294,9 +294,11 @@ class LoginController extends Controller
                     $producto = Producto::create([
                         "nom_producto" => $productoData['nom_producto'],
                         "cod_producto" => $productoData['cod_producto'],
-                        "color" => $productoData['color'],
-                        "origen" => $productoData['origen'],
-                        "peso_neto" => $productoData['peso_neto'],
+                        "color_id" => $productoData['color_id'],
+                        //"origen" => $productoData['origen'],
+                        "largo" => $productoData['largo'],
+                        "espesor" => $productoData['espesor'],
+                        "lote" => $productoData['lote'],
                         //"marca_id" => $productoData['marca_id'],
                     ]);
                     // $entrada = RegistroEntrada::create([
@@ -366,7 +368,7 @@ class LoginController extends Controller
                 $entrada_detalle = RegistroEntradaDetalle::create([
                     "producto_id" => $id_producto->id,
                     //"origen" => $productoData['origen'],
-                    "peso_neto" => $id_producto->peso_neto,
+                    //"peso_neto" => $id_producto->peso_neto,
                     "precio" => $productoData['precio'],
                     "largo" => $productoData['largo'],
                     "registro_entrada_id" => $entrada->id

@@ -32,7 +32,7 @@
                 <button type="submit" class="btn btn-primary mx-auto d-block" style="width: 60%;" onclick="mostrarAlerta()">Guadar Productos</button>
             </div>
             <br><br>
-            <div class="form-group">
+            <!-- <div class="form-group">
                 <label for="proveedor_id">Escoge el Proveedor</label>
                 <select class="form-control" name="proveedor_id">
                     <option value="">Selecciona un Proveedor</option>
@@ -52,7 +52,7 @@
                     $conexion->close();
                     ?>
                 </select>
-            </div>
+            </div> -->
             <div class="row" id="productos-container">
 
                 <aside class="col-sm-4">
@@ -63,7 +63,7 @@
                             <div class="form-group">
                                 <label for="productos[0][id]">Escoge el Producto</label>
                                 <select class="form-control producto-select" name="productos[0][id]">
-                                    <option value="">Selecciona un Producto</option>
+                                    <option value="">Selecciona un Producto por codigo</option>
                                     <?php
                                     $conexion = new mysqli("localhost", "root", "", "lucky");
 
@@ -71,27 +71,20 @@
                                         die("Conexión fallida: " . $conexion->connect_error);
                                     }
 
-                                    $consulta = "SELECT DISTINCT nom_producto FROM producto WHERE estado_registro = 'A'";
+                                    $consulta = "SELECT id, cod_producto FROM producto WHERE estado_registro = 'A'";
                                     $resultado = $conexion->query($consulta);
 
                                     while ($fila = $resultado->fetch_assoc()) {
-                                        echo "<option value='{$fila['nom_producto']}'>{$fila['nom_producto']}</option>";
+                                        echo "<option value='{$fila['cod_producto']}'>{$fila['cod_producto']}</option>";
                                     }
                                     $conexion->close();
                                     ?>
                                 </select>
                             </div>
-
-                            <div class="form-group">
-                                <label for="productos[0][color]">Escoge el Color</label>
-                                <select class="form-control color-select" name="productos[0][color]">
-                                    <option value="">Selecciona un Color</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
+                            <!-- <div class="form-group">
                                 <label for="productos[0][largo]">Largo del Producto</label>
                                 <input name="productos[0][largo]" class="form-control" placeholder="0" type="number">
-                            </div>
+                            </div> -->
                             <div class="form-group">
                                 <label for="productos[0][precio]">Precio del Producto</label>
                                 <input name="productos[0][precio]" class="form-control" placeholder="Precio" type="number">
