@@ -87,6 +87,12 @@ class ReportePDFController extends Controller
             else if($producto->espesor == "0.35"){
                 $ganancia = $producto->largo * 17.5;
             }
+            // else if($producto->espesor == "0.26"){
+            //     $ganancia = $producto->largo * 13.5;
+            // }
+            // else if($producto->espesor == "0.25"){
+            //     $ganancia = $producto->largo * 17.5;
+            // }
             else if($producto->espesor == "0.40"){
                 $ganancia = $producto->largo * 20.5;
             }
@@ -114,7 +120,7 @@ class ReportePDFController extends Controller
             $nom_producto = $producto->producto->nom_producto ?? null;
             $cod_producto = $producto->producto->cod_producto ?? null;
             $lote = $producto->producto->lote ?? null;
-            $largo = $producto->producto->largo ?? null;
+            $largo = $producto->largo ?? null;
             $fecha_salida = $producto->registro_salida->fecha_salida ?? null;
 
             $datos[] = [

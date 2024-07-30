@@ -262,10 +262,10 @@ class LoginController extends Controller
                     ->first();
                 if ($id_producto) {
                     $peso_producto = Producto::where('cod_producto',  $productoData['cod_producto'])
-                    // ->where('cod_producto',  $productoData['cod_producto'])
-                    // ->where('color',  $productoData['color'])
-                    // ->where('origen',  $productoData['origen'])
-                    ->first();
+                        // ->where('cod_producto',  $productoData['cod_producto'])
+                        // ->where('color',  $productoData['color'])
+                        // ->where('origen',  $productoData['origen'])
+                        ->first();
                     //return response()->json($cantidad_producto);
                     $largo_total =  $productoData['largo'] + $peso_producto->largo;
                     $producto = Producto::updateOrCreate([
@@ -337,6 +337,7 @@ class LoginController extends Controller
         if (!is_array($productos)) {
             return response()->json(["resp" => "La lista de productos no es válida"], 400);
         }
+
         DB::beginTransaction();
         try {
             $entrada = RegistroEntrada::create([
@@ -344,12 +345,20 @@ class LoginController extends Controller
                 // "proveedor_id" => $request->input('proveedor_id'),
                 "almacen_id" => 1
             ]);
+
             foreach ($productos as $productoData) {
                 if (!is_array($productoData)) {
                     DB::rollback();
-                    //return response()->json(["resp" => "Error al exportar productos: Formato de datos incorrecto"], 400);
+                    return response()->json(["resp" => "Formato de datos incorrecto"], 400);
                 }
-                $producto = Producto::where('cod_producto', $productoData['id'])->first();
+
+                $producto = Producto::where('id', $productoData['id'])->first();
+
+                if ($producto === null) {
+                    DB::rollback();
+                    return response()->json(["resp" => "Producto no encontrado: " . $productoData['id']], 404);
+                }
+
                 $entrada_detalle = RegistroEntradaDetalle::create([
                     "producto_id" => $producto->id,
                     "precio" => $productoData['precio'],
@@ -357,6 +366,7 @@ class LoginController extends Controller
                     "registro_entrada_id" => $entrada->id
                 ]);
             }
+
             DB::commit();
             return redirect()->route('asignar_producto')->with('success', 'Productos asignados correctamente');
         } catch (\Exception $e) {
@@ -387,21 +397,15 @@ class LoginController extends Controller
                     DB::rollback();
                     //return response()->json(["resp" => "Error al exportar productos: Formato de datos incorrecto"], 400);
                 }
-                $id_producto = Producto::where('cod_producto', $productoData['id'])->first();
-                //return response()->json($id_producto);
+                $id_producto = Producto::where('id', $productoData['id'])->first();
                 if ($productoData['largo'] > $id_producto->largo)
-                return response()->json(["resp" => "No hay suficientes productos"]);
+                    return response()->json(["resp" => "No hay suficientes productos"]);
                 $largo_total = $id_producto->largo - $productoData['largo'];
                 $producto = Producto::updateOrCreate([
                     "id" => $productoData['id'],
                 ], [
                     "largo" => $largo_total,
                 ]);
-                /*$salida = RegistroSalida::create([
-                    "fecha_salida" => Carbon::now(),
-                    "proveedor_id" => $productoData['proveedor_id'],
-                    "almacen_id" => 1
-                ]);*/
                 $entrada_detalle = RegistroSalidaDetalle::create([
                     "producto_id" => $id_producto->id,
                     //"peso_neto" => $productoData['peso_neto'],

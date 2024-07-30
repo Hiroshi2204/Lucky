@@ -61,9 +61,9 @@
                             <h4 class="card-title mb-4 mt-1">Entrada de Producto</h4>
 
                             <div class="form-group">
-                                <label for="productos[0][id]">Escoge el Producto</label>
+                                <label for="productos[0][id]">Selecciona un Producto por codigo</label>
                                 <select class="form-control producto-select" name="productos[0][id]">
-                                    <option value="">Selecciona un Producto por codigo</option>
+                                    <option value="">Selecciona</option>
                                     <?php
                                     $conexion = new mysqli("localhost", "root", "", "lucky");
 
