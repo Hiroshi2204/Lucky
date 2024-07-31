@@ -13,7 +13,7 @@ class ReportePDFController extends Controller
 {
     public function reporte_equipos_entrada()
     {
-        $productos = RegistroEntradaDetalle::with('producto','registro_entrada.proveedor')->get();
+        $productos = RegistroEntradaDetalle::with('producto', 'registro_entrada.proveedor')->get();
         //return response()->json($productos);
         $datos = [];
 
@@ -69,40 +69,33 @@ class ReportePDFController extends Controller
     }
     public function reporte_equipos_precio()
     {
-        $productos = Producto::with('color')->where('estado_registro', 'A')->get();
-        $producto_entrada = RegistroEntradaDetalle::with('producto','registro_entrada')->get();
-        $producto_salida = RegistroSalidaDetalle::with('producto', 'registro_salida')->get();
+        $productos = Producto::with('color', 'registro_entreda_detalle', 'registro_salida_detalle')->where('estado_registro', 'A')->get();
         $datos = [];
-        
+
         foreach ($productos as $producto) {
-            
+
             $nom_producto = $producto->nom_producto ?? null;
             $cod_producto = $producto->cod_producto ?? null;
             $color = $producto->color->nombre ?? null;
-            $largo = $producto->largo ?? null;
-            $espesor = $producto->espesor ?? null;
-            if($producto->espesor == "0.30"){
-                $ganancia = $producto->largo * 15;
+            $largo = 0;
+            $precio_total = 0;
+            $ganancia_total = 0;
+
+            if ($producto->registro_salida_detalle) {
+                foreach ($producto->registro_salida_detalle as $detalle) {
+                    $largo = $detalle->largo;
+                    $ganancia_total = $detalle->largo * $detalle->precio;
+                    $precio_total = $detalle->precio;
+                }
             }
-            else if($producto->espesor == "0.35"){
-                $ganancia = $producto->largo * 17.5;
-            }
-            // else if($producto->espesor == "0.26"){
-            //     $ganancia = $producto->largo * 13.5;
-            // }
-            // else if($producto->espesor == "0.25"){
-            //     $ganancia = $producto->largo * 17.5;
-            // }
-            else if($producto->espesor == "0.40"){
-                $ganancia = $producto->largo * 20.5;
-            }
+
             $datos[] = [
                 "nom_producto" => $nom_producto ?? null,
                 "cod_producto" => $cod_producto ?? null,
                 "color" => $color ?? null,
                 "largo" => $largo ?? null,
-                "espesor" => $espesor ?? null,
-                "ganancia" => $ganancia ?? null,
+                "precio_total" => $precio_total ?? null,
+                "ganancia_total" => $ganancia_total ?? null,
             ];
         }
 

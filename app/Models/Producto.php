@@ -26,7 +26,10 @@ class Producto extends Model
     public function color(){
         return $this->belongsTo(Color::class,'color_id','id');
     }
-    // public function registro_entreda_detalle(){
-    //     return $this->belongsTo(RegistroEntradaDetalle::class,'id','producto_id');
-    // }
+    public function registro_entreda_detalle(){
+        return $this->hasMany(RegistroEntradaDetalle::class,'producto_id','id');
+    }
+    public function registro_salida_detalle(){
+        return $this->hasMany(RegistroSalidaDetalle::class,'producto_id','id');
+    }
 }
