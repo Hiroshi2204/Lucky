@@ -170,9 +170,9 @@
                 <th>Producto</th>
                 <th>Codigo de Producto</th>
                 <th>Color</th>
-                <th>Cantidad</th>
+                <th>Cantidad por m2</th>
                 <th>Precio</th>
-                <th></th>
+                
                 <th>Ingreso</th>
             </tr>
         </thead>
@@ -183,9 +183,9 @@
                 <td>{{ $detalle['cod_producto'] }}</td>
                 <td>{{ $detalle['color'] }}</td>
                 <td>{{ $detalle['largo'] }}</td>
-                <td>{{ $detalle['precio_total'] }}</td>
-                <th></th>
-                <td>{{ $detalle['ganancia_total'] }}</td>
+                <td>s/. {{ $detalle['precio_total'] }}</td>
+                
+                <td> s/. {{ $detalle['ganancia_total'] }}</td>
             </tr>
             @endforeach
         </tbody>

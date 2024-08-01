@@ -16,7 +16,7 @@ class UserSeeder extends Seeder
         $persona = Persona::firstOrCreate(
             [
                 "tipo_documento_id"=>null,
-                "numero_documento"=>"00000000",
+                "numero_documento"=>"macrotechoslopez",
             ],
             [
                 "nombres"=>"Administrador",
@@ -31,7 +31,8 @@ class UserSeeder extends Seeder
 
             ],
             [
-                "password"=>$persona->numero_documento,
+                //"password"=>$persona->numero_documento,
+                "password"=>"macrotechos2024",
             ]
         );
 

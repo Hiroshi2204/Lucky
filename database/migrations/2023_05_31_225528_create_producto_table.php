@@ -19,7 +19,7 @@ class CreateProductoTable extends Migration
             $table->string('cod_producto')->nullable();
             $table->foreignId('color_id')->nullable()->references('id')->on('color');
             $table->string('lote')->nullable();
-            $table->integer('largo')->nullable();
+            $table->double('largo')->nullable();
             $table->string('espesor')->nullable();
             //$table->string('peso_neto')->nullable();
             //$table->foreignId('marca_id')->nullable()->references('id')->on('marca');

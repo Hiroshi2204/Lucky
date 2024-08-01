@@ -32,5 +32,8 @@ class ColorSeeder extends Seeder
         Color::updateOrCreate([
             "nombre" => "RAL6005 - VERDE"
         ]);
+        Color::updateOrCreate([
+            "nombre" => "RAL7035 - ALUCIN NATURAL"
+        ]);
     }
 }

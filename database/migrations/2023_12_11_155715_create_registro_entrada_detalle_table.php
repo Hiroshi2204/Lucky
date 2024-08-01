@@ -19,7 +19,7 @@ class CreateRegistroEntradaDetalleTable extends Migration
             //$table->string('origen')->nullable();
             //$table->double('peso_neto')->nullable();
             $table->double('largo')->nullable();
-            $table->integer('precio')->nullable();
+            $table->double('precio')->nullable();
             //$table->string('lote')->nullable();
             //$table->integer('cantidad')->nullable();
             $table->foreignId('registro_entrada_id')->nullable()->references('id')->on('registro_entrada');

@@ -83,11 +83,11 @@
                             </div>
                             <div class="form-group">
                                 <label for="productos[0][largo]">Largo del Producto</label>
-                                <input name="productos[0][largo]" class="form-control" placeholder="0" type="number">
+                                <input name="productos[0][largo]" class="form-control" placeholder="0" type="text">
                             </div>
                             <div class="form-group">
                                 <label for="productos[0][precio]">Precio del Producto</label>
-                                <input name="productos[0][precio]" class="form-control" placeholder="Precio" type="number">
+                                <input name="productos[0][precio]" class="form-control" placeholder="Precio" type="text">
                             </div>
                         </article>
                     </div>

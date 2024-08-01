@@ -16,7 +16,7 @@ class CreateRegistroSalidaDetalleTable extends Migration
         Schema::create('registro_salida_detalle', function (Blueprint $table) {
             $table->id();
             $table->foreignId('producto_id')->nullable()->references('id')->on('producto');
-            $table->integer('precio')->nullable();
+            $table->double('precio')->nullable();
             $table->double('largo')->nullable();
             //$table->double('peso_neto')->nullable();
             $table->foreignId('registro_salida_id')->nullable()->references('id')->on('registro_salida');
