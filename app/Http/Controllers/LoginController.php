@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\AlmacenProducto;
 use App\Models\Destinatario;
+use App\Models\EgresosAdicionales;
 use App\Models\Persona;
 use App\Models\Producto;
 use App\Models\ProductoDetalle;
@@ -30,10 +31,10 @@ class LoginController extends Controller
     {
         return view('mostrar_login');
     }
-    public static function cambiarDuracionToken()
-    {
-        JWTAuth::factory()->setTTL(60 * 24 * 30);
-    }
+    // public static function cambiarDuracionToken()
+    // {
+    //     JWTAuth::factory()->setTTL(60 * 24 * 30);
+    // }
     public function mostrar_menu($username)
     {
         $usernameu = User::where('id', $username)->first();
@@ -575,6 +576,40 @@ class LoginController extends Controller
             return view('destinatario_ver', ['datos' => $datos]);
         } catch (Exception $e) {
             return response()->json(["resp" => "error", "error" => "Error al llamar a los destinatarios  " . $e], 400);
+        }
+    }
+    //-----------------------------------------------------
+    public function registrar_egreso()
+    {
+        return view('registrar_egreso');
+    }
+    public function crear_varios_egresos(Request $request)
+    {
+        $productos = $request->input('productos');
+
+        if (!is_array($productos)) {
+            return response()->json(["resp" => "La lista de productos no es válida"], 400);
+        }
+        DB::beginTransaction();
+        try {
+            foreach ($productos as $productoData) {
+                if (!is_array($productoData)) {
+                    DB::rollback();
+                    return response()->json(["resp" => "Error al crear egresos: Formato de datos incorrecto"], 400);
+                }
+                    $producto = EgresosAdicionales::create([
+                        "empresa_id" => 1,
+                        "descripcion" => $productoData['descripcion'],
+                        "costo" => $productoData['costo'],
+                        "fecha_egreso" => Carbon::now()
+                    ]);
+                    DB::commit();
+            }
+            DB::commit();
+            return redirect()->route('registrar_egreso')->with('success', 'Egresos creados correctamente');
+        } catch (\Exception $e) {
+            DB::rollback();
+            return response()->json(["resp" => "Error al crear egresos: " . $e->getMessage()], 500);
         }
     }
 }

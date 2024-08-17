@@ -37,7 +37,7 @@ Route::get('/generar_pdf_entrada', [ReportePDFController::class, 'reporte_equipo
 Route::get('/generar_pdf_salida', [ReportePDFController::class, 'reporte_equipos_salida'])->name('generar_pdf_salida');
 Route::get('/generar_pdf_stock', [ReportePDFController::class, 'reporte_equipos_stock'])->name('generar_pdf_stock');
 Route::get('/generar_pdf_precio', [ReportePDFController::class, 'reporte_equipos_precio'])->name('generar_pdf_precio');
-
+Route::get('/generar_pdf_egreso', [ReportePDFController::class, 'reporte_egreso'])->name('generar_pdf_egreso');
 
 Route::get('/asignar_rol', [LoginController::class, 'asignar_rol'])->name('asignar_rol');
 Route::post('/asignar_rol', [LoginController::class, 'crear_asignar_rol'])->name('rol_asignado');
@@ -98,6 +98,9 @@ Route::middleware(['web'])->group(function () {
     Route::post('/destinatario_eliminar', [LoginController::class, 'delete_destinatario'])->name('destinatario_eliminar');
 
     Route::get('/destinatario_ver', [LoginController::class, 'get_destinatario'])->name('destinatario_ver');
+
+    Route::get('/registrar_egreso', [LoginController::class, 'registrar_egreso']);
+    Route::post('/registrar_egreso', [LoginController::class, 'crear_varios_egresos'])->name('registrar_egreso');
 });
 Route::group(['middleware' => ['jwt.verify', 'cors']], function () {
 

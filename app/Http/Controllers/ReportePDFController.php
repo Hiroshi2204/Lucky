@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\EgresosAdicionales;
 use App\Models\Producto;
 use App\Models\RegistroEntradaDetalle;
 use App\Models\RegistroSalidaDetalle;
@@ -128,5 +129,26 @@ class ReportePDFController extends Controller
 
         $pdf = Pdf::loadView('salida_equipos', compact('datos'));
         return $pdf->stream('salida_equipos');
+    }
+    public function reporte_egreso()
+    {
+        $productos = EgresosAdicionales::get();
+
+        $datos = [];
+
+        foreach ($productos as $producto) {
+            $descripcion = $producto->descripcion ?? null;
+            $costo = $producto->costo ?? null;
+            $fecha_egreso = $producto->fecha_egreso ?? null;
+
+            $datos[] = [
+                "descripcion" => $descripcion ?? null,
+                "costo" => $costo ?? null,
+                "fecha_egreso" => $fecha_egreso ?? null,
+            ];
+        }
+
+        $pdf = Pdf::loadView('reporte_egreso', compact('datos'));
+        return $pdf->stream('reporte_egreso');
     }
 }

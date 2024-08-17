@@ -192,11 +192,20 @@
         </li>
         <li class="nav-item dropdown"> <!-- Agrega la clase dropdown al elemento principal -->
           <a href="#" class="nav-link dropdown-toggle" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            Egresos
+          </a>
+          <ul class="dropdown-menu">
+            <li><a class="dropdown-item" href="{{ route('registrar_egreso') }}">Egresos adicionales</a></li>
+          </ul>
+        </li>
+        <li class="nav-item dropdown"> <!-- Agrega la clase dropdown al elemento principal -->
+          <a href="#" class="nav-link dropdown-toggle" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
             Reportes
           </a>
           <ul class="dropdown-menu">
             <li><a class="dropdown-item" href="{{ route('generar_pdf_entrada') }}">Reportes de Entrada</a></li>
             <li><a class="dropdown-item" href="{{ route('generar_pdf_salida') }}">Reportes de Salida</a></li>
+            <li><a class="dropdown-item" href="{{ route('generar_pdf_egreso') }}">Reportes de Gastos Adicionales</a></li>
             <li>
               <hr class="dropdown-divider">
             </li>

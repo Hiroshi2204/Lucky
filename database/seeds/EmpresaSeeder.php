@@ -16,10 +16,10 @@ class EmpresaSeeder extends Seeder
     {
         Empresa::updateOrCreate([
             "numero_documento" => "20536294237",
-            "razon_social" => "Suministros e Inversiones Del Perú E. I. R. L",
+            "razon_social" => "MACROTECHOS LOPEZ S.A.C",
             //"logo" => "",
             "distrito_id" => 1282,
-            "direccion_legal" => "Jr. Daniel Alcides Carrión Nro. 274"
+            "direccion_legal" => "HUANCAYO"
         ]);
     }
 }
