@@ -2,15 +2,15 @@
 
 namespace App\Http\Middleware;
 
-use App\Http\Middleware;
 use Closure;
-use JWTAuth;
 use Exception;
-use Tymon\JWTAuth\Http\Middleware\BaseMiddleware;
 use Illuminate\Http\Request;
-use Tymon\JWTAuth\Facades\JWTAuth as FacadesJWTAuth;
+use PHPOpenSourceSaver\JWTAuth\Facades\JWTAuth;
+use PHPOpenSourceSaver\JWTAuth\Exceptions\TokenInvalidException;
+use PHPOpenSourceSaver\JWTAuth\Exceptions\TokenExpiredException;
+use PHPOpenSourceSaver\JWTAuth\Exceptions\JWTException;
 
-class JwtMiddleware extends BaseMiddleware
+class JwtMiddleware
 {
     /**
      * Handle an incoming request.
@@ -22,16 +22,33 @@ class JwtMiddleware extends BaseMiddleware
     public function handle(Request $request, Closure $next)
     {
         try {
-            $user = FacadesJWTAuth::parseToken()->authenticate();
+            JWTAuth::parseToken()->authenticate();
+
+        } catch (TokenInvalidException $e) {
+
+            return response()->json([
+                'status' => 'Token is Invalid'
+            ], 401);
+
+        } catch (TokenExpiredException $e) {
+
+            return response()->json([
+                'status' => 'Token is Expired'
+            ], 401);
+
+        } catch (JWTException $e) {
+
+            return response()->json([
+                'status' => 'Authorization Token not found'
+            ], 401);
+
         } catch (Exception $e) {
-            if ($e instanceof \Tymon\JWTAuth\Exceptions\TokenInvalidException) {
-                return response()->json(['status' => 'Token is Invalid'], 401);
-            } else if ($e instanceof \Tymon\JWTAuth\Exceptions\TokenExpiredException) {
-                return response()->json(['status' => 'Token is Expired'], 401);
-            } else {
-                return response()->json(['status' => 'Authorization Token not found'], 401);
-            }
+
+            return response()->json([
+                'status' => 'Authorization Token not found'
+            ], 401);
         }
+
         return $next($request);
     }
 }

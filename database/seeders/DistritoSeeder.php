@@ -1,8 +1,8 @@
 <?php
-
+namespace Database\Seeders;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
-class DepartamentoSeeder extends Seeder
+class DistritoSeeder extends Seeder
 {
     /**
      * Run the database seeds.
@@ -11,7 +11,7 @@ class DepartamentoSeeder extends Seeder
      */
     public function run()
     {
-        $sql = database_path('departamentos.sql');
+        $sql = database_path('distritos.sql');
         DB::unprepared(file_get_contents($sql));
     }
 }

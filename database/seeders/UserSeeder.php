@@ -1,5 +1,5 @@
 <?php
-
+namespace Database\Seeders;
 use App\Models\Persona;
 use App\Models\UserRol;
 use Illuminate\Database\Seeder;
