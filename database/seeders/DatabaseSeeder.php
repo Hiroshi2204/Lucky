@@ -14,13 +14,7 @@ class DatabaseSeeder extends Seeder
             DistritoSeeder::class,
             UserSeeder::class,
             TipoDocumentoSeeder::class,
-            ProveedorSeeder::class,
-            DestinatarioSeeder::class,
-            MarcaSeeder::class,
-            ColorSeeder::class,
             RolSeeder::class,
-            EmpresaSeeder::class,
-            AlmacenSeeder::class,
             TipoRolSeeder::class,
         ]);
     }

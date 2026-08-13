@@ -8,28 +8,44 @@ use Illuminate\Database\Eloquent\Model;
 class Producto extends Model
 {
     use HasFactory;
-    protected $table = 'producto';
-    protected $fillable = array(
-                            'nom_producto',
-                            'cod_producto',
-                            'color_id',
-                            'lote',
-                            'largo',
-                            //'origen',
-                            'espesor',
-                            'estado_registro',
-                        );
-    protected $primaryKey = 'id';
-    protected $hidden = [
-        'created_at', 'updated_at','deleted_at'
+
+    protected $table = 'productos';
+
+    protected $fillable = [
+        'codigo',
+        'descripcion',
+        'espesor',
+        'estado',
     ];
-    public function color(){
-        return $this->belongsTo(Color::class,'color_id','id');
+
+    protected $casts = [
+        'espesor' => 'decimal:2',
+        'estado' => 'boolean',
+    ];
+    protected $appends = [
+        'stock_actual',
+    ];
+
+    public function movimientos()
+    {
+        return $this->hasMany(Movimiento::class);
     }
-    public function registro_entreda_detalle(){
-        return $this->hasMany(RegistroEntradaDetalle::class,'producto_id','id');
+
+    public function detalleVentas()
+    {
+        return $this->hasMany(DetalleVenta::class);
     }
-    public function registro_salida_detalle(){
-        return $this->hasMany(RegistroSalidaDetalle::class,'producto_id','id');
+
+    public function getStockActualAttribute()
+    {
+        $entradas = $this->movimientos()
+            ->where('tipo', 'ENTRADA')
+            ->sum('cantidad');
+
+        $salidas = $this->movimientos()
+            ->where('tipo', 'SALIDA')
+            ->sum('cantidad');
+
+        return (float) $entradas - (float) $salidas;
     }
 }

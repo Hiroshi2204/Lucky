@@ -1,69 +1,149 @@
 <?php
 
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\AntecedentesPersonalesController;
-use App\Http\Controllers\ClinicaLocalController;
-use App\Http\Controllers\Empresa\EmpresaPaqueteController;
-use App\Models\Rol;
+
+use App\Http\Controllers\ProductoController;
+use App\Http\Controllers\EntradaController;
+use App\Http\Controllers\MovimientoController;
+use App\Http\Controllers\VentaController;
+use App\Http\Controllers\ImportacionController;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\ReporteController;
 
 /*
 |--------------------------------------------------------------------------
-| API Routes
+| PRODUCTOS
 |--------------------------------------------------------------------------
-|
-| Here is where you can register API routes for your application. These
-| routes are loaded by the RouteServiceProvider within a group which
-| is assigned the "api" middleware group. Enjoy building your API!
-|
 */
 
+// Route::get(
+//     'productos/buscar',
+//     [ProductoController::class, 'buscar']
+// );
+
+// Route::get(
+//     'productos/{producto}/stock',
+//     [ProductoController::class, 'stock']
+// );
+
+// Route::apiResource(
+//     'productos',
+//     ProductoController::class
+// );
+Route::get(
+    'productos/buscar',
+    [ProductoController::class, 'buscar']
+)->name('productos.buscar');
+Route::get(
+    '/productos/buscar-venta',
+    [ProductoController::class, 'buscarVenta']
+)->name('productos.buscarVenta');
+Route::apiResource(
+    'productos',
+    ProductoController::class
+);
 
 
-Route::group(['middleware' => ['cors']], function () {
+/*
+|--------------------------------------------------------------------------
+| ENTRADAS
+|--------------------------------------------------------------------------
+*/
 
-    Route::post('login', 'AuthController@authenticate');
-    Route::post('user/create', 'UserController@create');
-    Route::get('user/traer', 'LoginController@traer_user_pass');
-});
-Route::group(['middleware' => ['jwt.verify', 'cors']], function () {
+// Route::get(
+//     'entradas',
+//     [EntradaController::class, 'index']
+// );
 
-    // Actualizar contraseña
-    Route::put('password/update', 'AuthController@updatePassword');
+// Route::post(
+//     'entradas',
+//     [EntradaController::class, 'store']
+// );
 
-    //Trabajador
-    Route::post('trabajador/create','TrabajadorController@create');
-    Route::put('trabajador/update/{id_trabajador}','TrabajadorController@update');
-    Route::delete('trabajador/delete/{id_trabajador}','TrabajadorController@delete');
-    Route::get('trabajador/get','TrabajadorController@get');
+// Route::get(
+//     'entradas/{entrada}',
+//     [EntradaController::class, 'show']
+// );
+Route::apiResource(
+    'entradas',
+    EntradaController::class
+)->only([
+    'index',
+    'store',
+    'show'
+]);
 
-    //Persona
-    Route::get('persona/show','PersonaController@getShow');
-    Route::get('persona/get','PersonaController@get');
-    Route::post('persona/store','PersonaController@store');
-    Route::post('persona/update/{id}','PersonaController@update');
-    Route::delete('persona/delete/{id}','PersonaController@delete');
-    Route::delete('persona/destroy/{id}','PersonaController@destroy');
-    //Producto
-    Route::post('producto/create', 'ProductoController@create');
-    Route::put('producto/update/{id}', 'ProductoController@update');
-    Route::delete('producto/delete/{id}', 'ProductoController@delete');
-    Route::get('producto/get', 'ProductoController@get');
-    Route::post('producto/exportar', 'ProductoController@exportar_equipos');
-    Route::post('producto/exportar/varios', 'ProductoController@exportar_varios_producto');
-    Route::post('producto/asignar/{id_producto}', 'ProductoController@asignar_almacen');
-    Route::post('producto/crear/varios/producto', 'ProductoController@crear_varios_producto');
-    Route::post('producto/asignar/varios/producto', 'ProductoController@asignar_productos_almacen');
-    //Salida y Entrada de Productos
-    Route::post('producto/exportacion/{id_producto}', 'ProductoController@salida_productos');
-    Route::post('producto/importar/{id_producto}', 'ProductoController@entrada_productos');
+/*
+|--------------------------------------------------------------------------
+| MOVIMIENTOS
+|--------------------------------------------------------------------------
+*/
 
-    //Reportes PDF's
-    Route::get('producto/reporte/entrada', 'ReportePDFController@reporte_equipos_entrada');
-    Route::get('producto/reporte/stock', 'ReportePDFController@reporte_equipos_stock');
-    Route::get('producto/reporte/salida', 'ReportePDFController@reporte_equipos_salida');
+Route::get(
+    'movimientos',
+    [MovimientoController::class, 'index']
+);
 
-});
-/*Route::middleware('auth:api')->get('/user', function (Request $request) {
-    return $request->user();
-});*/
+Route::get(
+    'movimientos/{movimiento}',
+    [MovimientoController::class, 'show']
+);
+
+
+/*
+|--------------------------------------------------------------------------
+| VENTAS
+|--------------------------------------------------------------------------
+*/
+
+Route::get(
+    'ventas',
+    [VentaController::class, 'index']
+);
+
+Route::post(
+    'ventas',
+    [VentaController::class, 'store']
+);
+
+Route::get(
+    'ventas/{venta}',
+    [VentaController::class, 'show']
+);
+
+Route::post(
+    'ventas/{venta}/anular',
+    [VentaController::class, 'anular']
+);
+
+/*
+|--------------------------------------------------------------------------
+| IMPORTACIONES
+|--------------------------------------------------------------------------
+*/
+
+Route::post(
+    'importaciones/entradas',
+    [ImportacionController::class, 'entradas']
+);
+
+/*
+|--------------------------------------------------------------------------
+| DASHBOARD
+|--------------------------------------------------------------------------
+*/
+Route::get(
+    'dashboard',
+    [DashboardController::class, 'index']
+);
+
+
+Route::get(
+    'reportes/inventario',
+    [ReporteController::class, 'inventario']
+);
+
+Route::get(
+    'reportes/ventas',
+    [ReporteController::class, 'ventas']
+);
