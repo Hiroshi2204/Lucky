@@ -863,7 +863,7 @@
         try {
 
             const url =
-                `{{ url('/api/productos/buscar-venta') }}?buscar=${encodeURIComponent(buscar)}`;
+                `{{ route('productos.buscarVenta') }}?buscar=${encodeURIComponent(buscar)}`;
 
             console.log('Buscando:', url);
 
@@ -1665,33 +1665,46 @@
         try {
 
             const response =
-                await fetch(
-                    '/api/ventas', {
+                 await fetch("{{ route('ventas.store') }}", {
 
-                        method: 'POST',
+                    method: 'POST',
 
-                        headers: {
+                    headers: {
 
-                            'Content-Type': 'application/json',
+                        'Content-Type': 'application/json',
 
-                            'Accept': 'application/json',
+                        'Accept': 'application/json',
 
-                            'X-CSRF-TOKEN': document
-                                .querySelector(
-                                    'meta[name="csrf-token"]'
-                                )
-                                .getAttribute('content')
+                        'X-CSRF-TOKEN': document
+                            .querySelector('meta[name="csrf-token"]')
+                            .getAttribute('content')
 
-                        },
+                    },
 
-                        body: JSON.stringify(datos)
+                    body: JSON.stringify(datos)
 
-                    }
+                });
+
+
+            const texto = await response.text();
+
+            console.log('STATUS:', response.status);
+            console.log('URL:', response.url);
+            console.log('RESPUESTA DEL SERVIDOR:', texto);
+
+            let resultado;
+
+            try {
+
+                resultado = JSON.parse(texto);
+
+            } catch (e) {
+
+                throw new Error(
+                    `El servidor no devolvió JSON. HTTP ${response.status}. Revisa la consola.`
                 );
+            }
 
-
-            const resultado =
-                await response.json();
 
             if (!response.ok) {
 
@@ -1699,26 +1712,16 @@
                     resultado.message ||
                     'No se pudo registrar la venta.';
 
-
-                if (
-                    resultado.errors
-                ) {
+                if (resultado.errors) {
 
                     const errores =
-                        Object.values(
-                            resultado.errors
-                        )
+                        Object.values(resultado.errors)
                         .flat();
 
-
-                    mensaje =
-                        errores.join(' ');
+                    mensaje = errores.join(' ');
                 }
 
-
-                throw new Error(
-                    mensaje
-                );
+                throw new Error(mensaje);
             }
 
             alertSuccess.textContent =
@@ -1738,12 +1741,12 @@
                     ) {
 
                         window.location.href =
-                            `/ventas/${resultado.data.id}`;
+                            `{{ url('/ventas') }}/${resultado.data.id}`;
 
                     } else {
 
                         window.location.href =
-                            '/ventas';
+                            `{{ route('ventas.index') }}`;
 
                     }
 

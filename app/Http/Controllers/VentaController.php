@@ -302,11 +302,17 @@ class VentaController extends Controller
             |--------------------------------------------------------------------------
             */
 
+                /*
+|--------------------------------------------------------------------------
+| DETALLES + SALIDAS
+|--------------------------------------------------------------------------
+*/
+
                 foreach ($productos as $item) {
 
                     /*
-                | Detalle de venta
-                */
+    | Detalle de venta
+    */
 
                     $venta->detalles()->create([
 
@@ -324,31 +330,10 @@ class VentaController extends Controller
 
                     ]);
 
-                    if ($validated['monto_pagado'] > 0) {
-
-                        $venta->pagos()->create([
-
-                            'monto' =>
-                            $validated['monto_pagado'],
-
-                            'medio_pago' =>
-                            $validated['medio_pago'],
-
-                            'medio_pago_otro' =>
-                            $validated['medio_pago_otro'] ?? null,
-
-                            'fecha' =>
-                            $validated['fecha'] ?? now(),
-
-                            'observacion' =>
-                            'Pago inicial de la venta #' . $venta->id,
-                        ]);
-                    }
-
 
                     /*
-                | Movimiento de salida
-                */
+    | Movimiento de salida
+    */
 
                     Movimiento::create([
 
@@ -365,8 +350,40 @@ class VentaController extends Controller
                         $validated['fecha'] ?? now(),
 
                         'observacion' =>
-                        'Salida por venta #' .
-                            $venta->id,
+                        'Salida por venta #' . $venta->id,
+
+                    ]);
+                }
+
+
+                /*
+|--------------------------------------------------------------------------
+| PAGO INICIAL
+|--------------------------------------------------------------------------
+|
+| El pago pertenece a la venta, NO al producto.
+| Por eso se crea una sola vez.
+|
+*/
+
+                if ($validated['monto_pagado'] > 0) {
+
+                    $venta->pagos()->create([
+
+                        'monto' =>
+                        $validated['monto_pagado'],
+
+                        'medio_pago' =>
+                        $validated['medio_pago'],
+
+                        'medio_pago_otro' =>
+                        $validated['medio_pago_otro'] ?? null,
+
+                        'fecha' =>
+                        $validated['fecha'] ?? now(),
+
+                        'observacion' =>
+                        'Pago inicial de la venta #' . $venta->id,
 
                     ]);
                 }
