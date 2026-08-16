@@ -16,32 +16,26 @@ use App\Http\Controllers\ReporteController;
 |--------------------------------------------------------------------------
 */
 
-// Route::get(
-//     'productos/buscar',
-//     [ProductoController::class, 'buscar']
-// );
-
-// Route::get(
-//     'productos/{producto}/stock',
-//     [ProductoController::class, 'stock']
-// );
-
-// Route::apiResource(
-//     'productos',
-//     ProductoController::class
-// );
 Route::get(
     'productos/buscar',
     [ProductoController::class, 'buscar']
-)->name('productos.buscar');
+)->name('api.productos.buscar');
+
 Route::get(
-    '/productos/buscar-venta',
+    'productos/buscar-venta',
     [ProductoController::class, 'buscarVenta']
-)->name('productos.buscarVenta');
+)->name('api.productos.buscarVenta');
+
 Route::apiResource(
     'productos',
     ProductoController::class
-);
+)->names([
+    'index'   => 'api.productos.index',
+    'store'   => 'api.productos.store',
+    'show'    => 'api.productos.show',
+    'update'  => 'api.productos.update',
+    'destroy' => 'api.productos.destroy',
+]);
 
 
 /*
@@ -50,20 +44,6 @@ Route::apiResource(
 |--------------------------------------------------------------------------
 */
 
-// Route::get(
-//     'entradas',
-//     [EntradaController::class, 'index']
-// );
-
-// Route::post(
-//     'entradas',
-//     [EntradaController::class, 'store']
-// );
-
-// Route::get(
-//     'entradas/{entrada}',
-//     [EntradaController::class, 'show']
-// );
 Route::apiResource(
     'entradas',
     EntradaController::class
@@ -71,7 +51,12 @@ Route::apiResource(
     'index',
     'store',
     'show'
+])->names([
+    'index' => 'api.entradas.index',
+    'store' => 'api.entradas.store',
+    'show' => 'api.entradas.show',
 ]);
+
 
 /*
 |--------------------------------------------------------------------------
@@ -116,6 +101,7 @@ Route::post(
     [VentaController::class, 'anular']
 );
 
+
 /*
 |--------------------------------------------------------------------------
 | IMPORTACIONES
@@ -127,16 +113,24 @@ Route::post(
     [ImportacionController::class, 'entradas']
 );
 
+
 /*
 |--------------------------------------------------------------------------
 | DASHBOARD
 |--------------------------------------------------------------------------
 */
+
 Route::get(
     'dashboard',
     [DashboardController::class, 'index']
 );
 
+
+/*
+|--------------------------------------------------------------------------
+| REPORTES
+|--------------------------------------------------------------------------
+*/
 
 Route::get(
     'reportes/inventario',
