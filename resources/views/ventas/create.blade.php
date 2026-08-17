@@ -863,7 +863,7 @@
         try {
 
             const url =
-                `{{ route('productos.buscarVenta') }}?buscar=${encodeURIComponent(buscar)}`;
+                `{{ route('api.productos.buscarVenta') }}?buscar=${encodeURIComponent(buscar)}`;
 
             console.log('Buscando:', url);
 
