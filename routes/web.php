@@ -22,7 +22,7 @@ use App\Http\Controllers\VentaController;
 
 
 Route::get(
-    '/dashboard',
+    '/',
     [DashboardController::class, 'vista']
 )->name('dashboard');
 

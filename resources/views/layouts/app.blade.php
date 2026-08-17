@@ -9,7 +9,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <title>
-        @yield('title', 'Lucky Inventario')
+        @yield('title', 'Macrotechos Inventario')
     </title>
 
     @yield('head')
@@ -183,7 +183,7 @@
                 📦
 
                 <span>
-                    Lucky Inventario
+                    Macrotechos Lopez S.A.C
                 </span>
 
             </a>
