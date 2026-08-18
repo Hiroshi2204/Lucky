@@ -3,7 +3,7 @@ version: "3.9"
 services:
   app:
     build:
-      context: .
+      context: .:/var/www/html
       dockerfile: ./docker/php/Dockerfile
     container_name: macrotechos_app
     restart: unless-stopped
