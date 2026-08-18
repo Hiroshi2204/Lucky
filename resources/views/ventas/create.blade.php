@@ -1233,32 +1233,41 @@
                     function() {
 
                         const index =
-                            Number(
-                                this.dataset.index
-                            );
+                            Number(this.dataset.index);
 
                         let cantidad =
                             Number(this.value);
-
 
                         if (
                             cantidad <= 0 ||
                             isNaN(cantidad)
                         ) {
-
                             cantidad = 0;
-
                         }
 
-
-                        productosVenta[index]
-                            .cantidad = cantidad;
-
+                        productosVenta[index].cantidad = cantidad;
 
                         validarCantidad(index);
 
-                        calcularTotales();
+                        // ACTUALIZAR SUBTOTAL DE LA FILA
+                        const fila = this.closest('tr');
 
+                        const precio =
+                            Number(productosVenta[index].precio_unitario) || 0;
+
+                        const subtotal =
+                            cantidad * precio;
+
+                        const subtotalElemento =
+                            fila.querySelector('.subtotal');
+
+                        if (subtotalElemento) {
+                            subtotalElemento.textContent =
+                                `S/ ${dinero(subtotal)}`;
+                        }
+
+                        // ACTUALIZAR RESUMEN
+                        calcularTotales();
                     }
                 );
 
@@ -1273,31 +1282,39 @@
                     function() {
 
                         const index =
-                            Number(
-                                this.dataset.index
-                            );
+                            Number(this.dataset.index);
 
                         let precio =
                             Number(this.value);
-
 
                         if (
                             precio < 0 ||
                             isNaN(precio)
                         ) {
-
                             precio = 0;
-
                         }
 
+                        productosVenta[index].precio_unitario = precio;
 
-                        productosVenta[index]
-                            .precio_unitario =
-                            precio;
+                        // ACTUALIZAR SUBTOTAL DE LA FILA
+                        const fila = this.closest('tr');
 
+                        const cantidad =
+                            Number(productosVenta[index].cantidad) || 0;
 
+                        const subtotal =
+                            cantidad * precio;
+
+                        const subtotalElemento =
+                            fila.querySelector('.subtotal');
+
+                        if (subtotalElemento) {
+                            subtotalElemento.textContent =
+                                `S/ ${dinero(subtotal)}`;
+                        }
+
+                        // ACTUALIZAR RESUMEN
                         calcularTotales();
-
                     }
                 );
 
@@ -1665,7 +1682,7 @@
         try {
 
             const response =
-                 await fetch("{{ route('ventas.store') }}", {
+                await fetch("{{ route('ventas.store') }}", {
 
                     method: 'POST',
 

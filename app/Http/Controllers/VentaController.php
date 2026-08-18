@@ -130,13 +130,6 @@ class VentaController extends Controller
 
         ]);
 
-
-        /*
-    |--------------------------------------------------------------------------
-    | NO PERMITIR PRODUCTOS REPETIDOS
-    |--------------------------------------------------------------------------
-    */
-
         $productoIds = collect($validated['detalles'])
             ->pluck('producto_id');
 
@@ -158,13 +151,6 @@ class VentaController extends Controller
 
                 $productos = [];
 
-
-                /*
-            |--------------------------------------------------------------------------
-            | VALIDAR PRODUCTOS Y STOCK
-            |--------------------------------------------------------------------------
-            */
-
                 foreach ($validated['detalles'] as $detalle) {
 
                     $producto = Producto::where(
@@ -175,11 +161,6 @@ class VentaController extends Controller
                         ->firstOrFail();
 
 
-                    /*
-                |--------------------------------------------------------------------------
-                | PRODUCTO ACTIVO
-                |--------------------------------------------------------------------------
-                */
 
                     if (!$producto->estado) {
 
@@ -189,11 +170,6 @@ class VentaController extends Controller
                     }
 
 
-                    /*
-                |--------------------------------------------------------------------------
-                | STOCK
-                |--------------------------------------------------------------------------
-                */
 
                     $stock = $producto->stock_actual;
 
@@ -208,12 +184,6 @@ class VentaController extends Controller
                         );
                     }
 
-
-                    /*
-                |--------------------------------------------------------------------------
-                | TOTAL DEL DETALLE
-                |--------------------------------------------------------------------------
-                */
 
                     $precioTotal =
                         $detalle['cantidad'] *
@@ -240,12 +210,6 @@ class VentaController extends Controller
                 }
 
 
-                /*
-            |--------------------------------------------------------------------------
-            | VALIDAR MONTO PAGADO
-            |--------------------------------------------------------------------------
-            */
-
                 if ($validated['monto_pagado'] > $total) {
 
                     throw new \Exception(
@@ -258,12 +222,6 @@ class VentaController extends Controller
                     $total -
                     $validated['monto_pagado'];
 
-
-                /*
-            |--------------------------------------------------------------------------
-            | CREAR VENTA
-            |--------------------------------------------------------------------------
-            */
 
                 $venta = Venta::create([
 
@@ -296,23 +254,7 @@ class VentaController extends Controller
                 ]);
 
 
-                /*
-            |--------------------------------------------------------------------------
-            | DETALLES + SALIDAS
-            |--------------------------------------------------------------------------
-            */
-
-                /*
-|--------------------------------------------------------------------------
-| DETALLES + SALIDAS
-|--------------------------------------------------------------------------
-*/
-
                 foreach ($productos as $item) {
-
-                    /*
-    | Detalle de venta
-    */
 
                     $venta->detalles()->create([
 
@@ -330,10 +272,6 @@ class VentaController extends Controller
 
                     ]);
 
-
-                    /*
-    | Movimiento de salida
-    */
 
                     Movimiento::create([
 
@@ -355,16 +293,6 @@ class VentaController extends Controller
                     ]);
                 }
 
-
-                /*
-|--------------------------------------------------------------------------
-| PAGO INICIAL
-|--------------------------------------------------------------------------
-|
-| El pago pertenece a la venta, NO al producto.
-| Por eso se crea una sola vez.
-|
-*/
 
                 if ($validated['monto_pagado'] > 0) {
 
@@ -443,32 +371,18 @@ class VentaController extends Controller
     {
         if ($venta->estado === 'ANULADA') {
 
-            return response()->json([
-                'success' => false,
-                'message' => 'La venta ya está anulada.'
-            ], 422);
+            return redirect()
+                ->route('ventas.index')
+                ->with('error', 'La venta ya está anulada.');
         }
 
         try {
 
             DB::transaction(function () use ($venta) {
 
-                /*
-            |--------------------------------------------------------------------------
-            | BLOQUEAR LA VENTA
-            |--------------------------------------------------------------------------
-            */
-
                 $venta = Venta::where('id', $venta->id)
                     ->lockForUpdate()
                     ->firstOrFail();
-
-
-                /*
-            |--------------------------------------------------------------------------
-            | VERIFICAR ESTADO
-            |--------------------------------------------------------------------------
-            */
 
                 if ($venta->estado === 'ANULADA') {
 
@@ -477,21 +391,7 @@ class VentaController extends Controller
                     );
                 }
 
-
-                /*
-            |--------------------------------------------------------------------------
-            | OBTENER DETALLES
-            |--------------------------------------------------------------------------
-            */
-
                 $venta->load('detalles');
-
-
-                /*
-            |--------------------------------------------------------------------------
-            | DEVOLVER PRODUCTOS AL STOCK
-            |--------------------------------------------------------------------------
-            */
 
                 foreach ($venta->detalles as $detalle) {
 
@@ -502,62 +402,34 @@ class VentaController extends Controller
                         ->lockForUpdate()
                         ->firstOrFail();
 
-
                     Movimiento::create([
-
-                        'producto_id' =>
-                        $producto->id,
-
-                        'tipo' =>
-                        'ENTRADA',
-
-                        'cantidad' =>
-                        $detalle->cantidad,
-
-                        'fecha' =>
-                        now(),
-
+                        'producto_id' => $producto->id,
+                        'tipo' => 'ENTRADA',
+                        'cantidad' => $detalle->cantidad,
+                        'fecha' => now(),
                         'observacion' =>
                         'Devolución por anulación de venta #' .
                             $venta->id,
-
                     ]);
                 }
-
-
-                /*
-            |--------------------------------------------------------------------------
-            | ANULAR VENTA
-            |--------------------------------------------------------------------------
-            */
 
                 $venta->update([
                     'estado' => 'ANULADA'
                 ]);
             });
 
-
-            return response()->json([
-
-                'success' => true,
-
-                'message' =>
-                'Venta anulada correctamente.'
-
-            ]);
+            // REGRESA AL INDEX DE VENTAS
+            return redirect()
+                ->route('ventas.index')
+                ->with('success', 'Venta anulada correctamente.');
         } catch (\Throwable $e) {
 
-            return response()->json([
-
-                'success' => false,
-
-                'message' =>
-                'No se pudo anular la venta.',
-
-                'error' =>
-                $e->getMessage()
-
-            ], 422);
+            return redirect()
+                ->route('ventas.index')
+                ->with(
+                    'error',
+                    'No se pudo anular la venta: ' . $e->getMessage()
+                );
         }
     }
     public function create()
