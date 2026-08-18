@@ -183,7 +183,7 @@
                 📦
 
                 <span>
-                    Macrotechos Lopez S.A.C
+                    Macrotechos Lopez S.A.Cc
                 </span>
 
             </a>
