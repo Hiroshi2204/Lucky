@@ -86,7 +86,7 @@ services:
       BACKUP_DESTINO: ${BACKUP_DESTINO}
 
     volumes:
-      - ./rclone:/config/rclone:ro
+      - ./rclone:/config/rclone
 
     depends_on:
       db:
