@@ -37,7 +37,17 @@ services:
     volumes:
       - db_data:/var/lib/mysql
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${DB_ROOT_PASSWORD}"]
+      test:
+        [
+          "CMD",
+          "mysqladmin",
+          "ping",
+          "-h",
+          "localhost",
+          "-u",
+          "root",
+          "-p${DB_ROOT_PASSWORD}",
+        ]
       interval: 5s
       timeout: 5s
       retries: 10
@@ -56,6 +66,32 @@ services:
       PMA_PASSWORD: ${DB_ROOT_PASSWORD}
     depends_on:
       - db
+    networks:
+      - lucky_net
+  backup:
+    build:
+      context: ./backup
+      dockerfile: Dockerfile
+
+    container_name: macrotechos_backup
+
+    restart: "no"
+
+    environment:
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_DATABASE: ${DB_DATABASE}
+      DB_USER: root
+      DB_PASSWORD: ${DB_ROOT_PASSWORD}
+      BACKUP_DESTINO: ${BACKUP_DESTINO}
+
+    volumes:
+      - ./rclone:/config/rclone:ro
+
+    depends_on:
+      db:
+        condition: service_healthy
+
     networks:
       - lucky_net
 

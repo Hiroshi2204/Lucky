@@ -25,6 +25,26 @@ Route::get(
     '/',
     [DashboardController::class, 'vista']
 )->name('dashboard');
+// =====================================================
+// IMPORTACIÓN MASIVA DE ENTRADAS
+// =====================================================
+Route::get(
+    'entradas/importar',
+    [ImportacionController::class, 'index']
+)->name('entradas.importar');
+
+Route::post(
+    'entradas/importar',
+    [ImportacionController::class, 'entradas']
+)->name('entradas.importar.procesar');
+
+Route::get(
+    'entradas/importar/plantilla',
+    [ImportacionController::class, 'plantillaEntradas']
+)->name('entradas.importar.plantilla');
+
+
+
 
 Route::resource(
     'productos',
@@ -135,26 +155,3 @@ Route::get('/reportes/pagos/pdf', [ReporteController::class, 'pagosPdf'])
 Route::get('/reportes/pagos/excel', [ReporteController::class, 'pagosExcel'])
     ->name('reportes.pagos.excel');
 
-// =====================================================
-// IMPORTACIÓN MASIVA DE ENTRADAS
-// =====================================================
-
-// Mostrar formulario
-Route::get(
-    '/entradas/importar',
-    function () {
-        return view('entradas.importar');
-    }
-)->name('entradas.importar.form');
-
-// Procesar Excel
-Route::post(
-    '/entradas/importar',
-    [ImportacionController::class, 'entradas']
-)->name('entradas.importar');
-
-// Descargar plantilla
-Route::get(
-    '/entradas/importar/plantilla',
-    [ImportacionController::class, 'plantillaEntradas']
-)->name('entradas.importar.plantilla');

@@ -1,3 +1,5 @@
 @echo off
-cd /d C:\laragon\www\Lucky
-php artisan schedule:run
+
+cd /d C:\Macrotechos\Lucky
+
+docker compose run --rm backup

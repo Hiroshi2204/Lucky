@@ -9,6 +9,17 @@ use App\Exports\PlantillaEntradasExport;
 
 class ImportacionController extends Controller
 {
+    /**
+     * Mostrar pantalla de importación
+     */
+    public function index()
+    {
+        return view('entradas.importar');
+    }
+
+    /**
+     * Procesar archivo Excel
+     */
     public function entradas(Request $request)
     {
         $request->validate([
@@ -47,6 +58,9 @@ class ImportacionController extends Controller
         );
     }
 
+    /**
+     * Descargar plantilla
+     */
     public function plantillaEntradas()
     {
         return Excel::download(

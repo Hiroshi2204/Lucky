@@ -1,277 +1,411 @@
-<!DOCTYPE html>
-<html lang="es">
+@extends('layouts.app')
 
-<head>
+@section('title', 'Importar productos - Lucky Inventario')
 
-    <meta charset="UTF-8">
+@section('styles')
 
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0">
+<style>
 
-    <title>Importar productos</title>
+    .container {
+        max-width: 1000px;
+        margin: auto;
+        padding: 25px;
+    }
 
-    <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
+    .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 25px;
+    }
 
-        body {
-            font-family: Arial, sans-serif;
-            background: #f4f6f9;
-            color: #1f2937;
-        }
+    .header h1 {
+        font-size: 28px;
+        margin: 0;
+    }
+
+    .header p {
+        color: #6b7280;
+        margin-top: 5px;
+    }
+
+    .panel {
+        background: white;
+        border-radius: 12px;
+        padding: 25px;
+        box-shadow: 0 3px 10px rgba(0,0,0,.06);
+        margin-bottom: 20px;
+    }
+
+    .panel-title {
+        font-size: 19px;
+        font-weight: bold;
+        margin-bottom: 18px;
+    }
+
+    .info {
+        background: #eff6ff;
+        border: 1px solid #bfdbfe;
+        color: #1e40af;
+        padding: 15px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        line-height: 1.6;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    label {
+        display: block;
+        font-weight: bold;
+        margin-bottom: 8px;
+    }
+
+    input[type="file"] {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid #d1d5db;
+        border-radius: 8px;
+        background: white;
+    }
+
+    .acciones {
+        display: flex;
+        gap: 10px;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .acciones-derecha {
+        display: flex;
+        gap: 10px;
+    }
+
+    .btn {
+        display: inline-block;
+        padding: 11px 18px;
+        border-radius: 8px;
+        border: none;
+        cursor: pointer;
+        text-decoration: none;
+        font-size: 14px;
+    }
+
+    .btn-primary {
+        background: #2563eb;
+        color: white;
+    }
+
+    .btn-primary:hover {
+        background: #1d4ed8;
+    }
+
+    .btn-success {
+        background: #16a34a;
+        color: white;
+    }
+
+    .btn-success:hover {
+        background: #15803d;
+    }
+
+    .btn-secondary {
+        background: #6b7280;
+        color: white;
+    }
+
+    .formato {
+        margin-top: 20px;
+    }
+
+    .formato table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .formato th {
+        background: #f9fafb;
+        text-align: left;
+        padding: 12px;
+        color: #6b7280;
+        font-size: 13px;
+    }
+
+    .formato td {
+        padding: 12px;
+        border-top: 1px solid #eee;
+    }
+
+    .obligatorio {
+        color: #dc2626;
+    }
+
+    @media(max-width:700px) {
 
         .container {
-            max-width: 800px;
-            margin: auto;
-            padding: 30px 20px;
-        }
-
-        .panel {
-            background: white;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 3px 10px rgba(0, 0, 0, .06);
-        }
-
-        h1 {
-            margin-bottom: 10px;
-        }
-
-        .descripcion {
-            color: #6b7280;
-            margin-bottom: 25px;
-        }
-
-        .info {
-            background: #eff6ff;
-            border: 1px solid #bfdbfe;
-            color: #1e40af;
             padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 20px;
         }
 
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        label {
-            display: block;
-            font-weight: bold;
-            margin-bottom: 8px;
-        }
-
-        input[type="file"] {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid #d1d5db;
-            border-radius: 8px;
+        .header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 15px;
         }
 
         .acciones {
-            display: flex;
-            gap: 10px;
-            margin-top: 20px;
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .acciones-derecha {
+            flex-direction: column;
         }
 
         .btn {
-            padding: 11px 18px;
-            border-radius: 8px;
-            border: none;
-            text-decoration: none;
-            cursor: pointer;
+            text-align: center;
         }
+    }
 
-        .btn-primary {
-            background: #2563eb;
-            color: white;
-        }
+</style>
 
-        .btn-secondary {
-            background: #6b7280;
-            color: white;
-        }
+@endsection
 
-        @media(max-width:600px) {
 
-            .container {
-                padding: 15px;
-            }
+@section('content')
 
-            .panel {
-                padding: 20px;
-            }
+<div class="container">
 
-            .acciones {
-                flex-direction: column;
-            }
+    <div class="header">
 
-            .btn {
-                width: 100%;
-                text-align: center;
-            }
+        <div>
 
-        }
-    </style>
+            <h1>Importar productos</h1>
 
-</head>
-
-<body>
-
-    <div class="container">
-
-        <div class="panel">
-
-            <h1>
-                📊 Importar productos
-            </h1>
-
-            <p class="descripcion">
-                Registra productos y su stock inicial mediante un archivo Excel.
+            <p>
+                Registrar productos y entradas de stock mediante Excel
             </p>
-
-            <div class="info">
-
-                <strong>
-                    Formato del Excel
-                </strong>
-
-                <br><br>
-
-                El archivo debe contener las siguientes columnas:
-
-                <br><br>
-
-                <strong>
-                    codigo | descripcion | espesor | cantidad
-                </strong>
-
-                <br><br>
-
-                Ejemplo:
-
-                <br>
-
-                P001 | Producto ejemplo | 0.010 | 100
-
-            </div>
-
-            @if($errors->any())
-
-            <div style="
-                background:#fee2e2;
-                color:#991b1b;
-                padding:15px;
-                border-radius:8px;
-                margin-bottom:20px;
-            ">
-
-                @foreach($errors->all() as $error)
-
-                <div>
-                    {{ $error }}
-                </div>
-
-                @endforeach
-
-            </div>
-
-            @endif
-
-            <form
-                method="POST"
-                action="{{ route('entradas.importar') }}"
-                enctype="multipart/form-data">
-
-                @csrf
-
-                <div class="form-group">
-
-                    <label>
-                        Archivo Excel
-                    </label>
-
-                    <input
-                        type="file"
-                        name="archivo"
-                        accept=".xlsx,.xls,.csv"
-                        required>
-
-                </div>
-
-                <div class="acciones">
-
-                    <a
-                        href="{{ route('entradas.index') }}"
-                        class="btn btn-secondary">
-
-                        ← Cancelar
-
-                    </a>
-
-                    <a
-                        href="{{ route('entradas.importar.plantilla') }}"
-                        class="btn btn-success">
-
-                        📥 Descargar plantilla
-
-                    </a>
-
-                    <button
-                        type="submit"
-                        class="btn btn-primary">
-
-                        📊 Importar archivo
-
-                    </button>
-
-                </div>
-                <div style="
-    background:#fef3c7;
-    color:#92400e;
-    padding:15px;
-    border-radius:8px;
-    margin-bottom:20px;
-">
-
-                    <strong>Importante:</strong>
-
-                    <ul style="margin-top:8px;margin-left:20px;">
-
-                        <li>
-                            El código identifica de manera única al producto.
-                        </li>
-
-                        <li>
-                            Si el producto ya existe, se agregará la cantidad al stock.
-                        </li>
-
-                        <li>
-                            Si el producto no existe, será creado automáticamente.
-                        </li>
-
-                        <li>
-                            El espesor debe coincidir con el producto existente.
-                        </li>
-
-                        <li>
-                            La cantidad debe ser mayor que cero.
-                        </li>
-
-                    </ul>
-
-                </div>
-
-            </form>
 
         </div>
 
     </div>
 
-</body>
 
-</html>
+    <div class="panel">
+
+        <div class="panel-title">
+            Importación de productos y stock
+        </div>
+
+
+        <div class="info">
+
+            <strong>¿Cómo funciona?</strong>
+
+            <br>
+
+            Seleccione un archivo Excel con los productos que desea
+            importar.
+
+            <br>
+
+            Si el producto no existe, será creado automáticamente.
+
+            <br>
+
+            Si el producto ya existe, se agregará la cantidad indicada
+            como una nueva entrada de stock.
+
+        </div>
+
+
+        <form
+            action="{{ route('entradas.importar.procesar') }}"
+            method="POST"
+            enctype="multipart/form-data">
+
+            @csrf
+
+
+            <div class="form-group">
+
+                <label>
+                    Archivo Excel
+                    <span class="obligatorio">*</span>
+                </label>
+
+                <input
+                    type="file"
+                    name="archivo"
+                    accept=".xlsx,.xls,.csv"
+                    required>
+
+            </div>
+
+
+            @if($errors->any())
+
+                <div
+                    style="
+                        background:#fee2e2;
+                        color:#991b1b;
+                        padding:15px;
+                        border-radius:8px;
+                        margin-bottom:20px;
+                    ">
+
+                    @foreach($errors->all() as $error)
+
+                        <div>
+                            {{ $error }}
+                        </div>
+
+                    @endforeach
+
+                </div>
+
+            @endif
+
+
+            <div class="acciones">
+
+                <a
+                    href="{{ route('ventas.index') }}"
+                    class="btn btn-secondary">
+
+                    Cancelar
+
+                </a>
+
+
+                <div class="acciones-derecha">
+
+                    <a
+                        href="{{ route('entradas.importar.plantilla') }}"
+                        class="btn btn-success">
+
+                        Descargar plantilla
+
+                    </a>
+
+
+                    <button
+                        type="submit"
+                        class="btn btn-primary">
+
+                        Importar Excel
+
+                    </button>
+
+                </div>
+
+            </div>
+
+        </form>
+
+    </div>
+
+
+    <div class="panel formato">
+
+        <div class="panel-title">
+            Formato del archivo
+        </div>
+
+
+        <table>
+
+            <thead>
+
+                <tr>
+
+                    <th>Columna</th>
+
+                    <th>Descripción</th>
+
+                    <th>Ejemplo</th>
+
+                </tr>
+
+            </thead>
+
+
+            <tbody>
+
+                <tr>
+
+                    <td>
+                        <strong>codigo</strong>
+                    </td>
+
+                    <td>
+                        Código único del producto
+                    </td>
+
+                    <td>
+                        P001
+                    </td>
+
+                </tr>
+
+
+                <tr>
+
+                    <td>
+                        <strong>descripcion</strong>
+                    </td>
+
+                    <td>
+                        Descripción del producto
+                    </td>
+
+                    <td>
+                        Producto ejemplo
+                    </td>
+
+                </tr>
+
+
+                <tr>
+
+                    <td>
+                        <strong>espesor</strong>
+                    </td>
+
+                    <td>
+                        Espesor del producto
+                    </td>
+
+                    <td>
+                        0.300
+                    </td>
+
+                </tr>
+
+
+                <tr>
+
+                    <td>
+                        <strong>cantidad</strong>
+                    </td>
+
+                    <td>
+                        Cantidad que ingresará al inventario
+                    </td>
+
+                    <td>
+                        100
+                    </td>
+
+                </tr>
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+@endsection

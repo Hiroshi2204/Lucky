@@ -1,328 +1,298 @@
-<!DOCTYPE html>
-<html lang="es">
+@extends('layouts.app')
 
-<head>
+@section('title', 'Resultado de importación - Lucky Inventario')
 
-    <meta charset="UTF-8">
+@section('styles')
 
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0">
+<style>
 
-    <title>Resultado de importación</title>
+    .container {
+        max-width: 1200px;
+        margin: auto;
+        padding: 25px;
+    }
 
-    <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
+    .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 25px;
+    }
 
-        body {
-            font-family: Arial, sans-serif;
-            background: #f4f6f9;
-            color: #1f2937;
-        }
+    .header h1 {
+        font-size: 28px;
+        margin: 0;
+    }
+
+    .header p {
+        color: #6b7280;
+        margin-top: 5px;
+    }
+
+    .resumen {
+        display: grid;
+        grid-template-columns:
+            repeat(3, 1fr);
+        gap: 15px;
+        margin-bottom: 20px;
+    }
+
+    .card {
+        background: white;
+        border-radius: 10px;
+        padding: 20px;
+        box-shadow: 0 3px 10px rgba(0,0,0,.06);
+    }
+
+    .card-title {
+        color: #6b7280;
+        font-size: 14px;
+    }
+
+    .card-value {
+        font-size: 28px;
+        font-weight: bold;
+        margin-top: 8px;
+    }
+
+    .ok {
+        color: #15803d;
+    }
+
+    .error {
+        color: #dc2626;
+    }
+
+    .panel {
+        background: white;
+        border-radius: 12px;
+        padding: 20px;
+        box-shadow: 0 3px 10px rgba(0,0,0,.06);
+    }
+
+    .panel-title {
+        font-size: 18px;
+        font-weight: bold;
+        margin-bottom: 18px;
+    }
+
+    .table-container {
+        overflow-x: auto;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    th {
+        background: #f9fafb;
+        padding: 12px;
+        text-align: left;
+        font-size: 13px;
+        color: #6b7280;
+    }
+
+    td {
+        padding: 12px;
+        border-top: 1px solid #eee;
+    }
+
+    .estado {
+        display: inline-block;
+        padding: 5px 9px;
+        border-radius: 20px;
+        font-size: 12px;
+    }
+
+    .estado-ok {
+        background: #dcfce7;
+        color: #166534;
+    }
+
+    .estado-error {
+        background: #fee2e2;
+        color: #991b1b;
+    }
+
+    .acciones {
+        margin-top: 20px;
+        display: flex;
+        gap: 10px;
+    }
+
+    .btn {
+        display: inline-block;
+        padding: 11px 18px;
+        border-radius: 8px;
+        text-decoration: none;
+        border: none;
+        cursor: pointer;
+    }
+
+    .btn-primary {
+        background: #2563eb;
+        color: white;
+    }
+
+    .btn-secondary {
+        background: #6b7280;
+        color: white;
+    }
+
+    @media(max-width:700px) {
 
         .container {
-            max-width: 1200px;
-            margin: auto;
-            padding: 25px;
-        }
-
-        .header {
-            margin-bottom: 25px;
-        }
-
-        .header h1 {
-            font-size: 28px;
-        }
-
-        .header p {
-            margin-top: 6px;
-            color: #6b7280;
+            padding: 15px;
         }
 
         .resumen {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 15px;
-            margin-bottom: 20px;
-        }
-
-        .card {
-            background: white;
-            border-radius: 12px;
-            padding: 20px;
-            box-shadow: 0 3px 10px rgba(0, 0, 0, .06);
-        }
-
-        .card small {
-            display: block;
-            color: #6b7280;
-            margin-bottom: 8px;
-        }
-
-        .card strong {
-            font-size: 28px;
-        }
-
-        .procesadas {
-            color: #2563eb;
-        }
-
-        .exitosas {
-            color: #16a34a;
-        }
-
-        .errores {
-            color: #dc2626;
-        }
-
-        .panel {
-            background: white;
-            border-radius: 12px;
-            padding: 20px;
-            box-shadow: 0 3px 10px rgba(0, 0, 0, .06);
-        }
-
-        .panel h2 {
-            margin-bottom: 20px;
-        }
-
-        .table-container {
-            overflow-x: auto;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        th {
-            text-align: left;
-            padding: 12px;
-            background: #f9fafb;
-            color: #6b7280;
-            font-size: 13px;
-        }
-
-        td {
-            padding: 12px;
-            border-top: 1px solid #eee;
-        }
-
-        .estado {
-            display: inline-block;
-            padding: 5px 9px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: bold;
-        }
-
-        .ok {
-            background: #dcfce7;
-            color: #166534;
-        }
-
-        .error {
-            background: #fee2e2;
-            color: #991b1b;
+            grid-template-columns: 1fr;
         }
 
         .acciones {
-            display: flex;
-            gap: 10px;
-            margin-top: 20px;
-            flex-wrap: wrap;
+            flex-direction: column;
         }
 
         .btn {
-            display: inline-block;
-            padding: 11px 16px;
-            border-radius: 8px;
-            border: none;
-            text-decoration: none;
-            cursor: pointer;
-            font-size: 14px;
+            text-align: center;
         }
+    }
 
-        .btn-primary {
-            background: #2563eb;
-            color: white;
-        }
+</style>
 
-        .btn-secondary {
-            background: #6b7280;
-            color: white;
-        }
+@endsection
 
-        .btn-success {
-            background: #16a34a;
-            color: white;
-        }
 
-        @media(max-width:700px) {
+@section('content')
 
-            .container {
-                padding: 15px;
-            }
+<div class="container">
 
-            .resumen {
-                grid-template-columns: 1fr;
-            }
+    <div class="header">
 
-            .acciones {
-                flex-direction: column;
-            }
+        <div>
 
-            .acciones .btn {
-                width: 100%;
-                text-align: center;
-            }
-
-        }
-    </style>
-
-</head>
-
-<body>
-
-    <div class="container">
-
-        <div class="header">
-
-            <h1>
-                📊 Resultado de importación
-            </h1>
+            <h1>Resultado de importación</h1>
 
             <p>
-                Resultado de la carga masiva de productos y stock.
+                Resultado del procesamiento del archivo Excel
             </p>
 
         </div>
 
+    </div>
 
-        {{-- ===================================================== --}}
-        {{-- RESUMEN --}}
-        {{-- ===================================================== --}}
 
-        <div class="resumen">
+    {{-- RESUMEN --}}
 
-            <div class="card">
+    <div class="resumen">
 
-                <small>
-                    Filas procesadas
-                </small>
+        <div class="card">
 
-                <strong class="procesadas">
-                    {{ $import->procesadas }}
-                </strong>
-
+            <div class="card-title">
+                Filas procesadas
             </div>
 
-
-            <div class="card">
-
-                <small>
-                    Importadas correctamente
-                </small>
-
-                <strong class="exitosas">
-                    {{ $import->exitosas }}
-                </strong>
-
-            </div>
-
-
-            <div class="card">
-
-                <small>
-                    Filas con errores
-                </small>
-
-                <strong class="errores">
-                    {{ $import->errores }}
-                </strong>
-
+            <div class="card-value">
+                {{ $import->procesadas }}
             </div>
 
         </div>
 
 
-        {{-- ===================================================== --}}
-        {{-- DETALLE --}}
-        {{-- ===================================================== --}}
+        <div class="card">
 
-        <div class="panel">
+            <div class="card-title">
+                Importaciones exitosas
+            </div>
 
-            <h2>
-                Detalle de la importación
-            </h2>
+            <div class="card-value ok">
+                {{ $import->exitosas }}
+            </div>
 
-            <div class="table-container">
+        </div>
 
-                <table>
 
-                    <thead>
+        <div class="card">
 
-                        <tr>
+            <div class="card-title">
+                Errores
+            </div>
 
-                            <th>
-                                Fila
-                            </th>
+            <div class="card-value error">
+                {{ $import->errores }}
+            </div>
 
-                            <th>
-                                Código
-                            </th>
+        </div>
 
-                            <th>
-                                Estado
-                            </th>
+    </div>
 
-                            <th>
-                                Cantidad
-                            </th>
 
-                            <th>
-                                Mensaje
-                            </th>
+    {{-- DETALLE --}}
 
-                        </tr>
+    <div class="panel">
 
-                    </thead>
+        <div class="panel-title">
+            Detalle de importación
+        </div>
 
-                    <tbody>
 
-                        @forelse($import->resultado as $resultado)
+        <div class="table-container">
+
+            <table>
+
+                <thead>
+
+                    <tr>
+
+                        <th>Fila</th>
+
+                        <th>Código</th>
+
+                        <th>Estado</th>
+
+                        <th>Cantidad</th>
+
+                        <th>Mensaje</th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                    @forelse($import->resultado as $item)
 
                         <tr>
 
                             <td>
-                                {{ $resultado['fila'] }}
+                                {{ $item['fila'] }}
+                            </td>
+
+                            <td>
+                                {{ $item['codigo'] ?? '-' }}
                             </td>
 
                             <td>
 
-                                <strong>
-                                    {{ $resultado['codigo'] ?: '-' }}
-                                </strong>
+                                @if($item['estado'] === 'OK')
 
-                            </td>
+                                    <span
+                                        class="estado estado-ok">
 
-                            <td>
+                                        OK
 
-                                @if($resultado['estado'] === 'OK')
-
-                                <span class="estado ok">
-                                    OK
-                                </span>
+                                    </span>
 
                                 @else
 
-                                <span class="estado error">
-                                    ERROR
-                                </span>
+                                    <span
+                                        class="estado estado-error">
+
+                                        ERROR
+
+                                    </span>
 
                                 @endif
 
@@ -330,30 +300,28 @@
 
                             <td>
 
-                                @if(isset($resultado['cantidad']))
+                                @isset($item['cantidad'])
 
-                                {{ number_format(
-                                        $resultado['cantidad'],
+                                    {{ number_format(
+                                        $item['cantidad'],
                                         3
                                     ) }}
 
                                 @else
 
-                                -
+                                    -
 
-                                @endif
+                                @endisset
 
                             </td>
 
                             <td>
-
-                                {{ $resultado['mensaje'] }}
-
+                                {{ $item['mensaje'] }}
                             </td>
 
                         </tr>
 
-                        @empty
+                    @empty
 
                         <tr>
 
@@ -361,46 +329,44 @@
                                 colspan="5"
                                 style="text-align:center;padding:30px;">
 
-                                No se encontraron registros para procesar.
+                                No se procesaron registros.
 
                             </td>
 
                         </tr>
 
-                        @endforelse
+                    @endforelse
 
-                    </tbody>
+                </tbody>
 
-                </table>
+            </table>
 
-            </div>
-
-
-            <div class="acciones">
-
-                <a
-                    href="{{ route('entradas.index') }}"
-                    class="btn btn-secondary">
-
-                    ← Volver a entradas
-
-                </a>
+        </div>
 
 
-                <a
-                    href="{{ route('entradas.importar.form') }}"
-                    class="btn btn-primary">
+        <div class="acciones">
 
-                    📊 Nueva importación
+            <a
+                href="{{ route('entradas.importar') }}"
+                class="btn btn-primary">
 
-                </a>
+                Nueva importación
 
-            </div>
+            </a>
+
+
+            <a
+                href="{{ route('entradas.importar.plantilla') }}"
+                class="btn btn-secondary">
+
+                Descargar plantilla
+
+            </a>
 
         </div>
 
     </div>
 
-</body>
+</div>
 
-</html>
+@endsection

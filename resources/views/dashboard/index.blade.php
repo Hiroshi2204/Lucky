@@ -379,7 +379,7 @@
         {{-- IMPORTAR EXCEL --}}
 
         <a
-            href="{{ route('entradas.importar.form') }}"
+            href="{{ route('entradas.importar') }}"
             class="quick-action">
 
             <div class="quick-icon">
