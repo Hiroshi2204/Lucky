@@ -2,118 +2,234 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
 use App\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Facade;
-use Illuminate\Support\Facades\Hash;
-use PHPOpenSourceSaver\JWTAuth\Exceptions\JWTException;
-use PHPOpenSourceSaver\JWTAuth\Exceptions\TokenExpiredException;
-use PHPOpenSourceSaver\JWTAuth\Exceptions\TokenInvalidException;
-use PHPOpenSourceSaver\JWTAuth\Facades\JWTAuth as FacadesJWTAuth;
+use Illuminate\Support\Facades\Auth;
 
 class AuthController extends Controller
 {
+    /**
+     * Mostrar login
+     */
     public function login()
     {
-        return view('mostrar_login');
-    }
-    public function authenticate(Request $request)
-    {
-        //return response()->json($request);
-        /*$username = $request->input('username');
-        $password = $request->input('password');*/
-        $credentials = $request->only('username', 'password');
-        $usernameu = User::where('username', $request->username)->first();
-        if (!$usernameu) return redirect()->route('login');/*return response()->json(["error" => "El nombre de usuario no existe"], 400);*/
-        $user = User::with('persona')->where('username', $request->username)->where('estado_registro', 'A')->first();
-
-        if (!$user) return redirect()->route('login');/*return response()->json(['error' => 'Usuario bloqueado'], 402);*/
-
-        try {
-            $this->cambiarDuracionToken();
-            if (!$token = FacadesJWTAuth::attempt($credentials)) {
-                //return response()->json(['error' => 'invalid_credentials'], 403);
-                return redirect()->route('login')->with('error', 'invalid_credentials');
-            }
-        } catch (JWTException $e) {
-            //return response()->json(['error' => 'could_not_create_token'], 500);
-            return redirect()->route('login')->with('error', 'could_not_create_token');
+        if (Auth::check()) {
+            return redirect()->route('dashboard');
         }
-        //session(['username' => $username]);
-        $response = array(
-            "id" => $user->id,
-            "persona_id" => $user->persona_id,
-            "username" => $user->username,
-            "persona" => $user->persona,
-        );
-        $response['token'] = $token;
-        return redirect()->intended("/menu/{$user->id}");
-        //return response()->json($response);
-    }
 
-
-
-    public function getAuthenticatedUser()
-    {
-        try {
-            if (!$user = FacadesJWTAuth::parseToken()->authenticate()) {
-                return response()->json(['user_not_found'], 404);
-            }
-        } catch (TokenExpiredException $e) {
-            return response()->json(['token_expired'], $e);
-        } catch (TokenInvalidException $e) {
-            return response()->json(['token_invalid'], $e);
-        } catch (JWTException $e) {
-            return response()->json(['token_absent'], $e);
-        }
-        return response()->json(compact('user'));
-    }
-    private function cambiarDuracionToken()
-    {
-        $myTTL = 60 * 24 * 1; // En minutos
-        FacadesJWTAuth::factory()->setTTL($myTTL);
-    }
-    public function my()
-    {
-        $my = User::with('persona')->find(auth()->user()->id);
-        
-        $response = array(
-            "id" => $my->id,
-            "persona_id" => $my->persona_id,
-            "username" => $my->username,
-            "persona" => $my->persona,
-        );
-
-        return response()->json(["data" => $response]);
+        return view('login');
     }
 
     /**
-     *
+     * Autenticar usuario
      */
-    public function updatePassword(Request $request)
+    public function authenticate(Request $request)
     {
-        // Obtener usuario autenticado (logeado)
-        $usuario = User::find(auth()->user()->id);
-        // contraseña actual (insertar)
-        $current_password = $request->current_password;
-        //Nueva contraseña (insertar)
-        $new_password = $request->new_password;
-        // Confirmar la nueva contraseña
-        $confirm_Password = $request->confirm_Password;
+        $request->validate([
+            'username' => 'required|string|max:255',
+            'password' => 'required|string',
+        ], [
+            'username.required' => 'Ingrese su usuario.',
+            'password.required' => 'Ingrese su contraseña.',
+        ]);
 
-        if (Hash::check($current_password, $usuario->password)){
-            if ($new_password == $confirm_Password) {
-                $usuario->password = $new_password;
-                $usuario->save();
+        $credentials = [
+            'username' => $request->username,
+            'password' => $request->password,
+            'estado_registro' => true,
+        ];
 
-                return response()->json(['resp' => 'La contraseña ha sido actualizada exitosamente'], 200);
-            }else {
-                return response()->json(['resp' => 'Las contraseñas no COINCIDEN, vuelva a insertar'], 400);
-            }
-        } else {
-            return response()->json(['resp' => 'La contraseña actual no es correcta, inserte nuevamente.' ], 401);
+        if (!Auth::attempt($credentials)) {
+
+            return back()
+                ->withErrors([
+                    'username' => 'Usuario o contraseña incorrectos.',
+                ])
+                ->withInput(
+                    $request->only('username')
+                );
         }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Regenerar sesión
+        |--------------------------------------------------------------------------
+        */
+
+        $request->session()->regenerate();
+
+        /** @var \App\User $user */
+        $user = Auth::user();
+
+        /*
+        |--------------------------------------------------------------------------
+        | ADMINISTRADOR
+        |--------------------------------------------------------------------------
+        |
+        | El administrador puede tener varios locales.
+        | Por eso NO asignamos automáticamente un local.
+        |
+        */
+
+        if ($user->rol_id == 1) {
+
+            $locales = $user->locales()
+                ->where('locales.estado', true)
+                ->wherePivot('estado', true)
+                ->get();
+
+            if ($locales->isEmpty()) {
+
+                Auth::logout();
+
+                $request->session()->invalidate();
+                $request->session()->regenerateToken();
+
+                return back()
+                    ->withErrors([
+                        'username' =>
+                            'El administrador no tiene ningún local asignado.'
+                    ]);
+            }
+
+            /*
+             * Si solamente tiene un local,
+             * podemos seleccionarlo automáticamente.
+             */
+
+            if ($locales->count() === 1) {
+
+                $request->session()->put(
+                    'local_id',
+                    $locales->first()->id
+                );
+
+                return redirect()->intended(
+                    route('dashboard')
+                );
+            }
+
+            /*
+             * Si tiene varios locales,
+             * debe seleccionar uno.
+             */
+
+            return redirect()->route('local.seleccionar');
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | TRABAJADOR
+        |--------------------------------------------------------------------------
+        |
+        | El trabajador NO selecciona local.
+        | Se obtiene automáticamente desde usuario_local.
+        |
+        */
+
+        if ($user->rol_id == 2) {
+
+            $local = $user->locales()
+                ->where('locales.estado', true)
+                ->wherePivot('estado', true)
+                ->first();
+
+            if (!$local) {
+
+                Auth::logout();
+
+                $request->session()->invalidate();
+                $request->session()->regenerateToken();
+
+                return back()
+                    ->withErrors([
+                        'username' =>
+                            'El usuario no tiene un local asignado.'
+                    ]);
+            }
+
+            /*
+             * Guardamos automáticamente
+             * el local del trabajador.
+             */
+
+            $request->session()->put(
+                'local_id',
+                $local->id
+            );
+
+            return redirect()->intended(
+                route('dashboard')
+            );
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Rol desconocido
+        |--------------------------------------------------------------------------
+        */
+
+        Auth::logout();
+
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return back()
+            ->withErrors([
+                'username' =>
+                    'El usuario no tiene un rol válido.'
+            ]);
     }
 
+    /**
+     * Cerrar sesión
+     */
+    public function logout(Request $request)
+    {
+        Auth::logout();
+
+        $request->session()->forget('local_id');
+
+        $request->session()->invalidate();
+
+        $request->session()->regenerateToken();
+
+        return redirect()
+            ->route('login')
+            ->with(
+                'success',
+                'Sesión cerrada correctamente.'
+            );
+    }
+
+    /**
+     * Usuario autenticado
+     */
+    public function my()
+    {
+        $user = User::with([
+            'persona',
+            'rol',
+            'locales'
+        ])->find(Auth::id());
+
+        if (!$user) {
+
+            return response()->json([
+                'error' => 'Usuario no encontrado'
+            ], 404);
+        }
+
+        return response()->json([
+            'data' => [
+                'id' => $user->id,
+                'persona_id' => $user->persona_id,
+                'username' => $user->username,
+                'rol' => $user->rol,
+                'persona' => $user->persona,
+                'locales' => $user->locales,
+                'local_id' => session('local_id'),
+            ]
+        ]);
+    }
 }

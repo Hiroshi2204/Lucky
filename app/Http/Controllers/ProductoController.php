@@ -2,161 +2,22 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\LocalHelper;
 use App\Models\Producto;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
+use App\Models\Auditoria;
 
 class ProductoController extends Controller
 {
-    // public function index()
-    // {
-    //     $productos = Producto::with('movimientos')
-    //         ->orderBy('id', 'desc')
-    //         ->paginate(20);
-
-    //     $productos->getCollection()->transform(function ($producto) {
-
-    //         $producto->stock_actual = $producto->stock_actual;
-
-    //         return $producto;
-    //     });
-
-    //     return response()->json([
-    //         'success' => true,
-    //         'data' => $productos
-    //     ]);
-    // }
-
-    // public function store(Request $request)
-    // {
-    //     $validated = $request->validate([
-    //         'codigo' => 'required|string|max:100|unique:productos,codigo',
-    //         'descripcion' => 'required|string|max:255',
-    //         'espesor' => 'required|numeric|min:0',
-    //         'estado' => 'nullable|boolean',
-    //     ]);
-
-    //     $producto = Producto::create($validated);
-
-    //     return response()->json([
-    //         'success' => true,
-    //         'message' => 'Producto creado correctamente.',
-    //         'data' => $producto
-    //     ], 201);
-    // }
-
-    // public function show(Producto $producto)
-    // {
-    //     $producto->load('movimientos');
-
-    //     return response()->json([
-    //         'success' => true,
-    //         'data' => [
-    //             'producto' => $producto,
-    //             'stock_actual' => $producto->stock_actual
-    //         ]
-    //     ]);
-    // }
-
-    // public function update(Request $request, Producto $producto)
-    // {
-    //     $validated = $request->validate([
-    //         'codigo' => 'required|string|max:100|unique:productos,codigo,' . $producto->id,
-    //         'descripcion' => 'required|string|max:255',
-    //         'espesor' => 'required|numeric|min:0',
-    //         'estado' => 'nullable|boolean',
-    //     ]);
-
-    //     $producto->update($validated);
-
-    //     return response()->json([
-    //         'success' => true,
-    //         'message' => 'Producto actualizado correctamente.',
-    //         'data' => $producto
-    //     ]);
-    // }
-
-    // public function destroy(Producto $producto)
-    // {
-    //     if ($producto->movimientos()->exists()) {
-    //         return response()->json([
-    //             'success' => false,
-    //             'message' => 'No se puede eliminar el producto porque tiene movimientos registrados.'
-    //         ], 422);
-    //     }
-
-    //     if ($producto->detalleVentas()->exists()) {
-    //         return response()->json([
-    //             'success' => false,
-    //             'message' => 'No se puede eliminar el producto porque tiene ventas registradas.'
-    //         ], 422);
-    //     }
-
-    //     $producto->delete();
-
-    //     return response()->json([
-    //         'success' => true,
-    //         'message' => 'Producto eliminado correctamente.'
-    //     ]);
-    // }
-
-    // public function buscar(Request $request)
-    // {
-    //     $request->validate([
-    //         'q' => 'required|string|min:1'
-    //     ]);
-
-    //     $texto = $request->q;
-
-    //     $productos = Producto::where('estado', true)
-    //         ->where(function ($query) use ($texto) {
-
-    //             $query->where(
-    //                 'codigo',
-    //                 'like',
-    //                 "%{$texto}%"
-    //             )
-    //                 ->orWhere(
-    //                     'descripcion',
-    //                     'like',
-    //                     "%{$texto}%"
-    //                 );
-    //         })
-    //         ->limit(30)
-    //         ->get();
-
-    //     $productos->transform(function ($producto) {
-
-    //         $producto->stock_actual =
-    //             $producto->stock_actual;
-
-    //         return $producto;
-    //     });
-
-    //     return response()->json([
-    //         'success' => true,
-    //         'data' => $productos
-    //     ]);
-    // }
-
-    // public function stock(Producto $producto)
-    // {
-    //     return response()->json([
-    //         'success' => true,
-    //         'data' => [
-    //             'producto_id' => $producto->id,
-    //             'codigo' => $producto->codigo,
-    //             'descripcion' => $producto->descripcion,
-    //             'stock_actual' => $producto->stock_actual
-    //         ]
-    //     ]);
-    // }
-
     /**
      * LISTAR PRODUCTOS
      */
     public function index(Request $request)
     {
-        $query = Producto::query();
+        $localId = LocalHelper::id();
+
+        $query = Producto::where('local_id', $localId);
 
         /*
         |--------------------------------------------------------------------------
@@ -241,13 +102,18 @@ class ProductoController extends Controller
      */
     public function store(Request $request)
     {
+        $localId = LocalHelper::id();
+
         $validated = $request->validate([
 
             'codigo' => [
                 'required',
                 'string',
                 'max:100',
-                'unique:productos,codigo'
+                Rule::unique('productos', 'codigo')
+                    ->where(function ($query) use ($localId) {
+                        return $query->where('local_id', $localId);
+                    }),
             ],
 
             'descripcion' => [
@@ -268,7 +134,7 @@ class ProductoController extends Controller
             'El código del producto es obligatorio.',
 
             'codigo.unique' =>
-            'El código del producto ya existe.',
+            'El código del producto ya existe en este local.',
 
             'descripcion.required' =>
             'La descripción es obligatoria.',
@@ -283,8 +149,10 @@ class ProductoController extends Controller
             'El espesor no puede ser negativo.',
         ]);
 
-
         $producto = Producto::create([
+
+            'local_id' =>
+            $localId,
 
             'codigo' =>
             $validated['codigo'],
@@ -300,6 +168,14 @@ class ProductoController extends Controller
 
         ]);
 
+        Auditoria::registrar(
+            'CREAR',
+            'productos',
+            $producto->id,
+            'Creó el producto ' . $producto->codigo,
+            null,
+            $producto->toArray()
+        );
 
         /*
         |--------------------------------------------------------------------------
@@ -322,7 +198,6 @@ class ProductoController extends Controller
             ], 201);
         }
 
-
         /*
         |--------------------------------------------------------------------------
         | BLADE
@@ -343,6 +218,9 @@ class ProductoController extends Controller
      */
     public function show(Request $request, Producto $producto)
     {
+        if ($producto->local_id != LocalHelper::id()) {
+            abort(404);
+        }
 
         $stock = $producto->stock_actual;
 
@@ -377,7 +255,6 @@ class ProductoController extends Controller
             ]);
         }
 
-
         return view(
             'productos.show',
             compact(
@@ -394,6 +271,10 @@ class ProductoController extends Controller
      */
     public function edit(Producto $producto)
     {
+        if ($producto->local_id != LocalHelper::id()) {
+            abort(404);
+        }
+
         return view(
             'productos.edit',
             compact('producto')
@@ -406,6 +287,11 @@ class ProductoController extends Controller
      */
     public function update(Request $request, Producto $producto)
     {
+        $localId = LocalHelper::id();
+
+        if ($producto->local_id != $localId) {
+            abort(404);
+        }
 
         $validated = $request->validate([
 
@@ -413,8 +299,11 @@ class ProductoController extends Controller
                 'required',
                 'string',
                 'max:100',
-                'unique:productos,codigo,' .
-                    $producto->id
+                Rule::unique('productos', 'codigo')
+                    ->where(function ($query) use ($localId) {
+                        return $query->where('local_id', $localId);
+                    })
+                    ->ignore($producto->id),
             ],
 
             'descripcion' => [
@@ -429,9 +318,28 @@ class ProductoController extends Controller
                 'min:0'
             ],
 
+        ], [
+
+            'codigo.required' =>
+            'El código del producto es obligatorio.',
+
+            'codigo.unique' =>
+            'El código del producto ya existe en este local.',
+
+            'descripcion.required' =>
+            'La descripción es obligatoria.',
+
+            'espesor.required' =>
+            'El espesor es obligatorio.',
+
+            'espesor.numeric' =>
+            'El espesor debe ser numérico.',
+
+            'espesor.min' =>
+            'El espesor no puede ser negativo.',
         ]);
 
-
+        $datosAnteriores = $producto->toArray();
         $producto->update([
 
             'codigo' =>
@@ -445,6 +353,16 @@ class ProductoController extends Controller
 
         ]);
 
+        $datosNuevos = $producto->fresh()->toArray();
+
+        Auditoria::registrar(
+            'MODIFICAR',
+            'productos',
+            $producto->id,
+            'Modificó el producto ' . $producto->codigo,
+            $datosAnteriores,
+            $datosNuevos
+        );
 
         /*
         |--------------------------------------------------------------------------
@@ -467,7 +385,6 @@ class ProductoController extends Controller
             ]);
         }
 
-
         /*
         |--------------------------------------------------------------------------
         | BLADE
@@ -488,10 +405,23 @@ class ProductoController extends Controller
      */
     public function destroy(Request $request, Producto $producto)
     {
+        if ($producto->local_id != LocalHelper::id()) {
+            abort(404);
+        }
 
+        $datosAnteriores = $producto->toArray();
         $producto->update([
             'estado' => false
         ]);
+
+        Auditoria::registrar(
+            'DESACTIVAR',
+            'productos',
+            $producto->id,
+            'Desactivó el producto ' . $producto->codigo,
+            $datosAnteriores,
+            $producto->fresh()->toArray()
+        );
 
         if ($request->expectsJson()) {
 
@@ -512,11 +442,17 @@ class ProductoController extends Controller
                 'Producto desactivado correctamente.'
             );
     }
+
+
+    /**
+     * BUSCAR PRODUCTOS POR CÓDIGO
+     */
     public function buscar(Request $request)
     {
         $codigo = $request->get('codigo');
 
         $productos = Producto::query()
+            ->where('local_id', LocalHelper::id())
             ->where('estado', true)
             ->where('codigo', 'LIKE', "%{$codigo}%")
             ->orderBy('codigo')
@@ -534,6 +470,34 @@ class ProductoController extends Controller
             'data' => $productos
         ]);
     }
+    // public function buscarjson(Request $request)
+    // {
+    //     $localId = LocalHelper::id();
+
+    //     return response()->json([
+    //         'debug' => [
+    //             'local_helper' => $localId,
+    //             'session' => session('local_id'),
+    //             'user_id' => auth()->id(),
+    //             'username' => auth()->user()?->username,
+    //         ],
+
+    //         'productos' => Producto::where(
+    //             'codigo',
+    //             'LIKE',
+    //             '%' . $request->codigo . '%'
+    //         )->get([
+    //             'id',
+    //             'codigo',
+    //             'descripcion',
+    //             'espesor',
+    //             'local_id',
+    //             'estado'
+    //         ])
+    //     ]);
+    // }
+
+
     /**
      * BUSCAR PRODUCTOS PARA VENTAS
      */
@@ -553,6 +517,8 @@ class ProductoController extends Controller
 
         $productos = Producto::query()
 
+            ->where('local_id', LocalHelper::id())
+
             ->where('estado', true)
 
             ->where(function ($query) use ($buscar) {
@@ -562,7 +528,6 @@ class ProductoController extends Controller
                     'LIKE',
                     "%{$buscar}%"
                 )
-
                     ->orWhere(
                         'descripcion',
                         'LIKE',

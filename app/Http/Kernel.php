@@ -68,5 +68,7 @@ class Kernel extends HttpKernel
         'jwt.verify' => \App\Http\Middleware\JwtMiddleware::class,
         'jwt.auth' => \PHPOpenSourceSaver\JWTAuth\Http\Middleware\Authenticate::class,
         'jwt.refresh' => \PHPOpenSourceSaver\JWTAuth\Http\Middleware\RefreshToken::class,
+        'local' => \App\Http\Middleware\EnsureLocalSelected::class,
+        'role' => \App\Http\Middleware\RoleMiddleware::class,
     ];
 }

@@ -6,6 +6,8 @@ use App\Models\Producto;
 use App\Models\Movimiento;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\Helpers\LocalHelper;
+use App\Models\Auditoria;
 
 class EntradaController extends Controller
 {
@@ -14,8 +16,13 @@ class EntradaController extends Controller
      */
     public function index(Request $request)
     {
+        $localId = LocalHelper::id();
+
         $query = Movimiento::with('producto')
             ->where('tipo', 'ENTRADA')
+            ->whereHas('producto', function ($query) use ($localId) {
+                $query->where('local_id', $localId);
+            })
             ->orderBy('fecha', 'desc');
 
         /*
@@ -86,7 +93,8 @@ class EntradaController extends Controller
         |--------------------------------------------------------------------------
         */
 
-        $productos = Producto::where('estado', true)
+        $productos = Producto::where('local_id', LocalHelper::id())
+            ->where('estado', true)
             ->orderBy('codigo')
             ->get();
 
@@ -161,7 +169,9 @@ class EntradaController extends Controller
 
         try {
 
-            $resultado = DB::transaction(function () use ($request) {
+            $localId = LocalHelper::id();
+
+            $resultado = DB::transaction(function () use ($request, $localId) {
 
                 /*
             |--------------------------------------------------------------------------
@@ -169,10 +179,8 @@ class EntradaController extends Controller
             |--------------------------------------------------------------------------
             */
 
-                $producto = Producto::where(
-                    'codigo',
-                    trim($request->codigo)
-                )
+                $producto = Producto::where('local_id', $localId)
+                    ->where('codigo', trim($request->codigo))
                     ->lockForUpdate()
                     ->first();
 
@@ -268,6 +276,9 @@ class EntradaController extends Controller
 
                     $producto = Producto::create([
 
+                        'local_id' =>
+                        $localId,
+
                         'codigo' =>
                         trim($request->codigo),
 
@@ -280,6 +291,7 @@ class EntradaController extends Controller
                         'estado' =>
                         true,
                     ]);
+
 
 
                     $productoNuevo = true;
@@ -309,6 +321,31 @@ class EntradaController extends Controller
                     'observacion' =>
                     $request->observacion ?: null,
                 ]);
+
+                Auditoria::registrar(
+                    'CREAR',
+                    'movimientos',
+                    $movimiento->id,
+                    'Registró una entrada de ' .
+                        $movimiento->cantidad .
+                        ' unidades del producto ' .
+                        $producto->codigo,
+                    null,
+                    $movimiento->toArray()
+                );
+                if ($productoNuevo) {
+
+                    Auditoria::registrar(
+                        'CREAR',
+                        'productos',
+                        $producto->id,
+                        'Creó automáticamente el producto ' .
+                            $producto->codigo .
+                            ' al registrar una entrada.',
+                        null,
+                        $producto->toArray()
+                    );
+                }
 
 
                 /*
@@ -443,8 +480,11 @@ class EntradaController extends Controller
             abort(404);
         }
 
-
         $entrada->load('producto');
+
+        if ($entrada->producto->local_id != LocalHelper::id()) {
+            abort(404);
+        }
 
         $stock = $entrada
             ->producto

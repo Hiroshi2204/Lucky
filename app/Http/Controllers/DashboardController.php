@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Producto;
 use App\Models\Venta;
 use Illuminate\Http\Request;
+use App\Helpers\LocalHelper;
 
 class DashboardController extends Controller
 {
@@ -38,6 +39,7 @@ class DashboardController extends Controller
      */
     private function obtenerDatos(Request $request)
     {
+        $localId = LocalHelper::id();
         $stockMinimo = $request->input(
             'stock_minimo',
             50
@@ -50,10 +52,9 @@ class DashboardController extends Controller
         |--------------------------------------------------------------------------
         */
 
-        $totalProductos = Producto::where(
-            'estado',
-            true
-        )->count();
+        $totalProductos = Producto::where('local_id', $localId)
+            ->where('estado', true)
+            ->count();
 
 
         /*
@@ -62,21 +63,19 @@ class DashboardController extends Controller
         |--------------------------------------------------------------------------
         */
 
-        $productosStock = Producto::where(
-            'estado',
-            true
-        )
-        ->withSum([
-            'movimientos as entradas' => function ($query) {
-                $query->where('tipo', 'ENTRADA');
-            }
-        ], 'cantidad')
-        ->withSum([
-            'movimientos as salidas' => function ($query) {
-                $query->where('tipo', 'SALIDA');
-            }
-        ], 'cantidad')
-        ->get();
+        $productosStock = Producto::where('local_id', $localId)
+            ->where('estado', true)
+            ->withSum([
+                'movimientos as entradas' => function ($query) {
+                    $query->where('tipo', 'ENTRADA');
+                }
+            ], 'cantidad')
+            ->withSum([
+                'movimientos as salidas' => function ($query) {
+                    $query->where('tipo', 'SALIDA');
+                }
+            ], 'cantidad')
+            ->get();
 
 
         $stockTotal = 0;
@@ -141,15 +140,13 @@ class DashboardController extends Controller
         |--------------------------------------------------------------------------
         */
 
-        $ventasHoy = Venta::where(
-            'estado',
-            'ACTIVA'
-        )
-        ->whereDate(
-            'fecha',
-            $hoy
-        )
-        ->get();
+        $ventasHoy = Venta::where('local_id', $localId)
+            ->where('estado', 'ACTIVA')
+            ->whereDate(
+                'fecha',
+                $hoy
+            )
+            ->get();
 
 
         /*
@@ -158,18 +155,16 @@ class DashboardController extends Controller
         |--------------------------------------------------------------------------
         */
 
-        $ventasMes = Venta::where(
-            'estado',
-            'ACTIVA'
-        )
-        ->whereBetween(
-            'fecha',
-            [
-                $inicioMes . ' 00:00:00',
-                $finMes . ' 23:59:59'
-            ]
-        )
-        ->get();
+        $ventasMes = Venta::where('local_id', $localId)
+            ->where('estado', 'ACTIVA')
+            ->whereBetween(
+                'fecha',
+                [
+                    $inicioMes . ' 00:00:00',
+                    $finMes . ' 23:59:59'
+                ]
+            )
+            ->get();
 
 
         /*
@@ -212,35 +207,35 @@ class DashboardController extends Controller
 
         $ventasPorMedioPago =
             $ventasMes
-                ->groupBy('medio_pago')
-                ->map(function ($ventas) {
+            ->groupBy('medio_pago')
+            ->map(function ($ventas) {
 
-                    return [
+                return [
 
-                        'cantidad' =>
-                            $ventas->count(),
+                    'cantidad' =>
+                    $ventas->count(),
 
-                        'total' =>
-                            round(
-                                $ventas->sum('total'),
-                                2
-                            ),
+                    'total' =>
+                    round(
+                        $ventas->sum('total'),
+                        2
+                    ),
 
-                        'cobrado' =>
-                            round(
-                                $ventas->sum('monto_pagado'),
-                                2
-                            ),
+                    'cobrado' =>
+                    round(
+                        $ventas->sum('monto_pagado'),
+                        2
+                    ),
 
-                        'pendiente' =>
-                            round(
-                                $ventas->sum(
-                                    'saldo_pendiente'
-                                ),
-                                2
-                            )
-                    ];
-                });
+                    'pendiente' =>
+                    round(
+                        $ventas->sum(
+                            'saldo_pendiente'
+                        ),
+                        2
+                    )
+                ];
+            });
 
 
         /*
@@ -259,15 +254,13 @@ class DashboardController extends Controller
                 ->toDateString();
 
 
-            $total = Venta::where(
-                'estado',
-                'ACTIVA'
-            )
-            ->whereDate(
-                'fecha',
-                $fecha
-            )
-            ->sum('total');
+            $total = Venta::where('local_id', $localId)
+                ->where('estado', 'ACTIVA')
+                ->whereDate(
+                    'fecha',
+                    $fecha
+                )
+                ->sum('total');
 
 
             $ventasUltimos7Dias->push([
@@ -275,10 +268,10 @@ class DashboardController extends Controller
                 'fecha' => $fecha,
 
                 'total' =>
-                    round(
-                        $total,
-                        2
-                    )
+                round(
+                    $total,
+                    2
+                )
             ]);
         }
 
@@ -298,86 +291,86 @@ class DashboardController extends Controller
             */
 
             'fecha' =>
-                now()->format(
-                    'Y-m-d H:i:s'
-                ),
+            now()->format(
+                'Y-m-d H:i:s'
+            ),
 
 
             'productos' => [
 
                 'total' =>
-                    $totalProductos,
+                $totalProductos,
 
                 'stock_total' =>
-                    round(
-                        $stockTotal,
-                        3
-                    ),
+                round(
+                    $stockTotal,
+                    3
+                ),
 
                 'stock_minimo' =>
-                    $stockMinimo,
+                $stockMinimo,
 
                 'stock_bajo' =>
-                    $productosStockBajo,
+                $productosStockBajo,
             ],
 
 
             'ventas_hoy' => [
 
                 'cantidad' =>
-                    $ventasHoy->count(),
+                $ventasHoy->count(),
 
                 'total' =>
-                    round(
-                        $ventasDiaTotal,
-                        2
-                    ),
+                round(
+                    $ventasDiaTotal,
+                    2
+                ),
 
                 'cobrado' =>
-                    round(
-                        $cobradoDia,
-                        2
-                    ),
+                round(
+                    $cobradoDia,
+                    2
+                ),
 
                 'pendiente' =>
-                    round(
-                        $pendienteDia,
-                        2
-                    ),
+                round(
+                    $pendienteDia,
+                    2
+                ),
             ],
 
 
             'ventas_mes' => [
 
                 'cantidad' =>
-                    $ventasMes->count(),
+                $ventasMes->count(),
 
                 'total' =>
-                    round(
-                        $ventasMesTotal,
-                        2
-                    ),
+                round(
+                    $ventasMesTotal,
+                    2
+                ),
 
                 'cobrado' =>
-                    round(
-                        $cobradoMes,
-                        2
-                    ),
+                round(
+                    $cobradoMes,
+                    2
+                ),
 
                 'pendiente' =>
-                    round(
-                        $pendienteMes,
-                        2
-                    ),
+                round(
+                    $pendienteMes,
+                    2
+                ),
             ],
 
 
             'ventas_por_medio_pago' =>
-                $ventasPorMedioPago,
+            $ventasPorMedioPago,
 
 
             'ventas_ultimos_7_dias' =>
-                $ventasUltimos7Dias,
+            $ventasUltimos7Dias,
 
 
             /*
@@ -387,31 +380,31 @@ class DashboardController extends Controller
             */
 
             'totalProductos' =>
-                $totalProductos,
+            $totalProductos,
 
             'stockTotal' =>
-                $stockTotal,
+            $stockTotal,
 
             'stockMinimo' =>
-                $stockMinimo,
+            $stockMinimo,
 
             'productosPocoStock' =>
-                $productosPocoStock,
+            $productosPocoStock,
 
             'ventasHoy' =>
-                $ventasDiaTotal,
+            $ventasDiaTotal,
 
             'ventasMes' =>
-                $ventasMesTotal,
+            $ventasMesTotal,
 
             'dineroCobrado' =>
-                $cobradoMes,
+            $cobradoMes,
 
             'dineroPendiente' =>
-                $pendienteMes,
+            $pendienteMes,
 
             'ventasUltimos7Dias' =>
-                $ventasUltimos7Dias,
+            $ventasUltimos7Dias,
         ];
     }
 }

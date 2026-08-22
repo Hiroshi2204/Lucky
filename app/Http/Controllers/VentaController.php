@@ -7,14 +7,19 @@ use App\Models\Producto;
 use App\Models\Movimiento;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\Helpers\LocalHelper;
+use App\Models\Auditoria;
 
 class VentaController extends Controller
 {
     public function index(Request $request)
     {
+        $localId = LocalHelper::id();
+
         $query = Venta::with([
             'detalles.producto'
         ])
+            ->where('local_id', $localId)
             ->orderBy('fecha', 'desc');
 
         if ($request->filled('medio_pago')) {
@@ -145,7 +150,9 @@ class VentaController extends Controller
 
         try {
 
-            $venta = DB::transaction(function () use ($validated) {
+            $localId = LocalHelper::id();
+
+            $venta = DB::transaction(function () use ($validated, $localId) {
 
                 $total = 0;
 
@@ -153,12 +160,16 @@ class VentaController extends Controller
 
                 foreach ($validated['detalles'] as $detalle) {
 
-                    $producto = Producto::where(
-                        'id',
-                        $detalle['producto_id']
-                    )
+                    $producto = Producto::where('id', $detalle['producto_id'])
+                        ->where('local_id', $localId)
                         ->lockForUpdate()
-                        ->firstOrFail();
+                        ->first();
+
+                    if (!$producto) {
+                        throw new \Exception(
+                            'El producto seleccionado no pertenece al local actual.'
+                        );
+                    }
 
 
 
@@ -225,6 +236,8 @@ class VentaController extends Controller
 
                 $venta = Venta::create([
 
+                    'local_id' => $localId,
+
                     'estado' => 'ACTIVA',
 
                     'fecha' =>
@@ -252,6 +265,15 @@ class VentaController extends Controller
                     $validated['observacion'] ?? null,
 
                 ]);
+
+                Auditoria::registrar(
+                    'CREAR',
+                    'ventas',
+                    $venta->id,
+                    'Registró la venta #' . $venta->id,
+                    null,
+                    $venta->toArray()
+                );
 
 
                 foreach ($productos as $item) {
@@ -349,6 +371,9 @@ class VentaController extends Controller
     }
     public function show(Request $request, Venta $venta)
     {
+        if ($venta->local_id != LocalHelper::id()) {
+            abort(404);
+        }
         $venta->load([
             'detalles.producto',
             'pagos'
@@ -369,6 +394,9 @@ class VentaController extends Controller
     }
     public function anular(Venta $venta)
     {
+        if ($venta->local_id != LocalHelper::id()) {
+            abort(404);
+        }
         if ($venta->estado === 'ANULADA') {
 
             return redirect()
@@ -381,6 +409,7 @@ class VentaController extends Controller
             DB::transaction(function () use ($venta) {
 
                 $venta = Venta::where('id', $venta->id)
+                    ->where('local_id', LocalHelper::id())
                     ->lockForUpdate()
                     ->firstOrFail();
 
@@ -413,9 +442,18 @@ class VentaController extends Controller
                     ]);
                 }
 
+                $datosAnteriores = $venta->toArray();
                 $venta->update([
                     'estado' => 'ANULADA'
                 ]);
+                Auditoria::registrar(
+                    'ANULAR',
+                    'ventas',
+                    $venta->id,
+                    'Anuló la venta #' . $venta->id,
+                    $datosAnteriores,
+                    $venta->fresh()->toArray()
+                );
             });
 
             // REGRESA AL INDEX DE VENTAS

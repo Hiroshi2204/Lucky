@@ -9,13 +9,10 @@ class DatabaseSeeder extends Seeder
     public function run()
     {
         $this->call([
-            DepartamentoSeeder::class,
-            ProvinciaSeeder::class,
-            DistritoSeeder::class,
-            UserSeeder::class,
             TipoDocumentoSeeder::class,
             RolSeeder::class,
-            TipoRolSeeder::class,
+            LocalSeeder::class,
+            AdminUserSeeder::class
         ]);
     }
 }

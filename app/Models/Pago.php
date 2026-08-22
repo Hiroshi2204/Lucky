@@ -13,6 +13,8 @@ class Pago extends Model
 
     protected $fillable = [
         'venta_id',
+        'user_id',
+        'local_id',
         'monto',
         'medio_pago',
         'medio_pago_otro',
@@ -28,5 +30,14 @@ class Pago extends Model
     public function venta()
     {
         return $this->belongsTo(Venta::class);
+    }
+    public function usuario()
+    {
+        return $this->belongsTo(\App\User::class, 'user_id');
+    }
+
+    public function local()
+    {
+        return $this->belongsTo(Local::class);
     }
 }

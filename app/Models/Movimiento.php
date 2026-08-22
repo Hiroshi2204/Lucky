@@ -13,6 +13,8 @@ class Movimiento extends Model
 
     protected $fillable = [
         'producto_id',
+        'user_id',
+        'local_id',
         'tipo',
         'cantidad',
         'fecha',
@@ -27,5 +29,15 @@ class Movimiento extends Model
     public function producto()
     {
         return $this->belongsTo(Producto::class);
+    }
+
+    public function usuario()
+    {
+        return $this->belongsTo(\App\User::class, 'user_id');
+    }
+
+    public function local()
+    {
+        return $this->belongsTo(Local::class);
     }
 }

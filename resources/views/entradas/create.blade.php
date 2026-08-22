@@ -591,7 +591,7 @@
             */
 
             const url =
-                "{{ url('/api/productos/buscar') }}" +
+                "{{ route('api.productos.buscar') }}" +
                 "?codigo=" +
                 encodeURIComponent(codigo);
 

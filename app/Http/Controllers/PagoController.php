@@ -6,6 +6,8 @@ use App\Models\Venta;
 use App\Models\Pago;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\Helpers\LocalHelper;
+use App\Models\Auditoria;
 
 class PagoController extends Controller
 {
@@ -14,6 +16,9 @@ class PagoController extends Controller
      */
     public function index(Request $request, Venta $venta)
     {
+        if ($venta->local_id != LocalHelper::id()) {
+            abort(404);
+        }
         $pagos = $venta->pagos()
             ->orderBy('fecha', 'desc')
             ->get();
@@ -46,13 +51,16 @@ class PagoController extends Controller
      */
     public function create(Venta $venta)
     {
+        if ($venta->local_id != LocalHelper::id()) {
+            abort(404);
+        }
         if ($venta->estado === 'ANULADA') {
 
             return redirect()
                 ->route('ventas.show', $venta)
                 ->withErrors([
                     'pago' =>
-                        'No se pueden registrar pagos de una venta anulada.'
+                    'No se pueden registrar pagos de una venta anulada.'
                 ]);
         }
 
@@ -110,21 +118,24 @@ class PagoController extends Controller
         ], [
 
             'monto.required' =>
-                'El monto del pago es obligatorio.',
+            'El monto del pago es obligatorio.',
 
             'monto.numeric' =>
-                'El monto debe ser numérico.',
+            'El monto debe ser numérico.',
 
             'monto.gt' =>
-                'El monto debe ser mayor que cero.',
+            'El monto debe ser mayor que cero.',
 
             'medio_pago.required' =>
-                'Debe seleccionar un medio de pago.',
+            'Debe seleccionar un medio de pago.',
         ]);
 
 
         try {
 
+            if ($venta->local_id != LocalHelper::id()) {
+                abort(404);
+            }
             $resultado = DB::transaction(function () use (
                 $validated,
                 $venta
@@ -136,10 +147,8 @@ class PagoController extends Controller
                 |--------------------------------------------------------------------------
                 */
 
-                $venta = Venta::where(
-                    'id',
-                    $venta->id
-                )
+                $venta = Venta::where('id', $venta->id)
+                    ->where('local_id', LocalHelper::id())
                     ->lockForUpdate()
                     ->firstOrFail();
 
@@ -190,10 +199,10 @@ class PagoController extends Controller
 
                     throw new \Exception(
                         'El monto del pago no puede ser mayor al saldo pendiente de S/ ' .
-                        number_format(
-                            $saldoActual,
-                            2
-                        )
+                            number_format(
+                                $saldoActual,
+                                2
+                            )
                     );
                 }
 
@@ -207,23 +216,35 @@ class PagoController extends Controller
                 $pago = Pago::create([
 
                     'venta_id' =>
-                        $venta->id,
+                    $venta->id,
 
                     'fecha' =>
-                        $validated['fecha'] ?? now(),
+                    $validated['fecha'] ?? now(),
 
                     'monto' =>
-                        $monto,
+                    $monto,
 
                     'medio_pago' =>
-                        $validated['medio_pago'],
+                    $validated['medio_pago'],
 
                     'medio_pago_otro' =>
-                        $validated['medio_pago_otro'] ?? null,
+                    $validated['medio_pago_otro'] ?? null,
 
                     'observacion' =>
-                        $validated['observacion'] ?? null,
+                    $validated['observacion'] ?? null,
                 ]);
+
+                Auditoria::registrar(
+                    'CREAR',
+                    'pagos',
+                    $pago->id,
+                    'Registró un pago de S/ ' .
+                        number_format($pago->monto, 2) .
+                        ' para la venta #' .
+                        $venta->id,
+                    null,
+                    $pago->toArray()
+                );
 
 
                 /*
@@ -263,11 +284,9 @@ class PagoController extends Controller
                 if ($nuevoSaldo == 0) {
 
                     $estadoPago = 'CANCELADO';
-
                 } elseif ($nuevoMontoPagado > 0) {
 
                     $estadoPago = 'PARCIAL';
-
                 } else {
 
                     $estadoPago = 'PENDIENTE';
@@ -283,32 +302,32 @@ class PagoController extends Controller
                 $venta->update([
 
                     'monto_pagado' =>
-                        $nuevoMontoPagado,
+                    $nuevoMontoPagado,
 
                     'saldo_pendiente' =>
-                        $nuevoSaldo,
+                    $nuevoSaldo,
 
                     'estado_pago' =>
-                        $estadoPago,
+                    $estadoPago,
 
                 ]);
 
 
                 return [
                     'venta' =>
-                        $venta->fresh(),
+                    $venta->fresh(),
 
                     'pago' =>
-                        $pago,
+                    $pago,
 
                     'monto_pagado' =>
-                        $nuevoMontoPagado,
+                    $nuevoMontoPagado,
 
                     'saldo_pendiente' =>
-                        $nuevoSaldo,
+                    $nuevoSaldo,
 
                     'estado_pago' =>
-                        $estadoPago,
+                    $estadoPago,
                 ];
             });
 
@@ -326,10 +345,10 @@ class PagoController extends Controller
                     'success' => true,
 
                     'message' =>
-                        'Pago registrado correctamente.',
+                    'Pago registrado correctamente.',
 
                     'data' =>
-                        $resultado
+                    $resultado
 
                 ], 201);
             }
@@ -350,8 +369,6 @@ class PagoController extends Controller
                     'success',
                     'Pago registrado correctamente.'
                 );
-
-
         } catch (\Throwable $e) {
 
             if ($request->expectsJson()) {
@@ -361,10 +378,10 @@ class PagoController extends Controller
                     'success' => false,
 
                     'message' =>
-                        'No se pudo registrar el pago.',
+                    'No se pudo registrar el pago.',
 
                     'error' =>
-                        $e->getMessage()
+                    $e->getMessage()
 
                 ], 422);
             }
@@ -374,7 +391,7 @@ class PagoController extends Controller
                 ->withInput()
                 ->withErrors([
                     'pago' =>
-                        $e->getMessage()
+                    $e->getMessage()
                 ]);
         }
     }
@@ -383,12 +400,13 @@ class PagoController extends Controller
     /**
      * MOSTRAR PAGO
      */
-    public function show(
-        Request $request,
-        Pago $pago
-    ) {
+    public function show(Request $request, Pago $pago)
+    {
 
         $pago->load('venta');
+        if (!$pago->venta || $pago->venta->local_id != LocalHelper::id()) {
+            abort(404);
+        }
 
         if ($request->expectsJson()) {
 

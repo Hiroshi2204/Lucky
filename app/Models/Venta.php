@@ -13,6 +13,8 @@ class Venta extends Model
     protected $table = 'ventas';
 
     protected $fillable = [
+        'user_id',
+        'local_id',
         'estado',
         'fecha',
         'total',
@@ -38,5 +40,14 @@ class Venta extends Model
     public function pagos()
     {
         return $this->hasMany(Pago::class);
+    }
+    public function usuario()
+    {
+        return $this->belongsTo(\App\User::class, 'user_id');
+    }
+
+    public function local()
+    {
+        return $this->belongsTo(Local::class);
     }
 }

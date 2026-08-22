@@ -16,16 +16,6 @@ use App\Http\Controllers\ReporteController;
 |--------------------------------------------------------------------------
 */
 
-Route::get(
-    'productos/buscar',
-    [ProductoController::class, 'buscar']
-)->name('api.productos.buscar');
-
-Route::get(
-    'productos/buscar-venta',
-    [ProductoController::class, 'buscarVenta']
-)->name('api.productos.buscarVenta');
-
 Route::apiResource(
     'productos',
     ProductoController::class

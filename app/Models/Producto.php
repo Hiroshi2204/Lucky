@@ -16,6 +16,7 @@ class Producto extends Model
         'descripcion',
         'espesor',
         'estado',
+        'local_id',
     ];
 
     protected $casts = [
@@ -29,6 +30,11 @@ class Producto extends Model
     public function movimientos()
     {
         return $this->hasMany(Movimiento::class);
+    }
+
+    public function local()
+    {
+        return $this->belongsTo(Local::class);
     }
 
     public function detalleVentas()
