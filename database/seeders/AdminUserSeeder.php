@@ -46,7 +46,7 @@ class AdminUserSeeder extends Seeder
             [
                 'persona_id' => $persona->id,
                 'rol_id' => 1,
-                'estado_registro' => 'A',
+                'estado_registro' => 1,
                 'password' => 'admin123',
             ]
         );
