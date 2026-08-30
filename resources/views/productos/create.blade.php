@@ -1,221 +1,197 @@
-<!DOCTYPE html>
-<html lang="es">
+@extends('layouts.app')
 
-<head>
+@section('title', 'Nuevo producto')
 
-    <meta charset="UTF-8">
 
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
+@section('styles')
 
-    <title>Nuevo producto</title>
+<style>
 
-    <style>
+    .container {
+        max-width: 900px;
+        margin: auto;
+        padding: 25px;
+    }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
+    .header {
+        margin-bottom: 25px;
+    }
 
-        body {
-            font-family: Arial, sans-serif;
-            background: #f4f6f9;
-            color: #1f2937;
-        }
+    .header h1 {
+        font-size: 28px;
+        margin: 0;
+    }
+
+    .header p {
+        color: #6b7280;
+        margin-top: 5px;
+    }
+
+    .panel {
+        background: white;
+        border-radius: 12px;
+        padding: 25px;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, .06);
+    }
+
+    .form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+    }
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .form-group.full {
+        grid-column: 1 / -1;
+    }
+
+    .form-group label {
+        font-weight: bold;
+        margin-bottom: 7px;
+        font-size: 14px;
+    }
+
+    .required {
+        color: #dc2626;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 11px;
+        border: 1px solid #d1d5db;
+        border-radius: 8px;
+        font-size: 14px;
+        outline: none;
+        font-family: inherit;
+    }
+
+    .form-control:focus {
+        border-color: #2563eb;
+        box-shadow: 0 0 0 2px rgba(37, 99, 235, .10);
+    }
+
+    textarea.form-control {
+        min-height: 100px;
+        resize: vertical;
+    }
+
+    .help {
+        display: block;
+        margin-top: 5px;
+        color: #6b7280;
+        font-size: 12px;
+    }
+
+    .alert {
+        padding: 12px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+    }
+
+    .alert-danger {
+        background: #fee2e2;
+        color: #991b1b;
+    }
+
+    .alert-info {
+        background: #eff6ff;
+        color: #1e40af;
+        padding: 15px;
+        border-radius: 8px;
+        margin-top: 20px;
+        line-height: 1.5;
+    }
+
+    .error {
+        color: #dc2626;
+        font-size: 12px;
+        margin-top: 5px;
+    }
+
+    .acciones {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 25px;
+        gap: 10px;
+    }
+
+    .btn {
+        display: inline-block;
+        padding: 11px 18px;
+        border-radius: 8px;
+        text-decoration: none;
+        border: none;
+        cursor: pointer;
+        font-size: 14px;
+    }
+
+    .btn-primary {
+        background: #2563eb;
+        color: white;
+    }
+
+    .btn-secondary {
+        background: #6b7280;
+        color: white;
+    }
+
+    .btn-primary:hover {
+        background: #1d4ed8;
+    }
+
+    .btn-secondary:hover {
+        background: #4b5563;
+    }
+
+    @media(max-width:700px) {
 
         .container {
-            max-width: 900px;
-            margin: auto;
-            padding: 25px;
-        }
-
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 25px;
-        }
-
-        .header h1 {
-            font-size: 28px;
-        }
-
-        .header p {
-            color: #6b7280;
-            margin-top: 5px;
-        }
-
-        .panel {
-            background: white;
-            border-radius: 12px;
-            padding: 25px;
-            box-shadow: 0 3px 10px rgba(0,0,0,.06);
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        .form-group label {
-            display: block;
-            font-weight: bold;
-            margin-bottom: 7px;
-        }
-
-        .required {
-            color: #dc2626;
-        }
-
-        .form-control {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid #d1d5db;
-            border-radius: 8px;
-            font-size: 14px;
-            outline: none;
-        }
-
-        .form-control:focus {
-            border-color: #2563eb;
-            box-shadow: 0 0 0 2px rgba(37,99,235,.1);
-        }
-
-        textarea.form-control {
-            resize: vertical;
-            min-height: 100px;
-        }
-
-        .row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-        }
-
-        .help {
-            display: block;
-            margin-top: 5px;
-            color: #6b7280;
-            font-size: 12px;
-        }
-
-        .alert {
-            padding: 12px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-        }
-
-        .alert-danger {
-            background: #fee2e2;
-            color: #991b1b;
-        }
-
-        .alert-info {
-            background: #dbeafe;
-            color: #1e40af;
             padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            line-height: 1.5;
         }
 
-        .error {
-            color: #dc2626;
-            font-size: 12px;
-            margin-top: 5px;
+        .form-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .form-group.full {
+            grid-column: auto;
         }
 
         .acciones {
-            display: flex;
-            justify-content: flex-end;
-            gap: 10px;
-            margin-top: 25px;
+            flex-direction: column;
         }
 
-        .btn {
-            display: inline-block;
-            padding: 10px 16px;
-            border-radius: 8px;
-            text-decoration: none;
-            border: none;
-            cursor: pointer;
-            font-size: 14px;
+        .acciones .btn {
+            width: 100%;
+            text-align: center;
         }
 
-        .btn-primary {
-            background: #2563eb;
-            color: white;
-        }
+    }
 
-        .btn-secondary {
-            background: #6b7280;
-            color: white;
-        }
+</style>
 
-        .btn-primary:hover {
-            background: #1d4ed8;
-        }
+@endsection
 
-        .btn-secondary:hover {
-            background: #4b5563;
-        }
 
-        @media(max-width:700px) {
-
-            .container {
-                padding: 15px;
-            }
-
-            .header {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 15px;
-            }
-
-            .row {
-                grid-template-columns: 1fr;
-                gap: 0;
-            }
-
-            .acciones {
-                flex-direction: column-reverse;
-            }
-
-            .acciones .btn {
-                width: 100%;
-                text-align: center;
-            }
-
-        }
-
-    </style>
-
-</head>
-
-<body>
+@section('content')
 
 <div class="container">
 
+    {{-- CABECERA --}}
+
     <div class="header">
 
-        <div>
+        <h1>
+            Nuevo producto
+        </h1>
 
-            <h1>Nuevo producto</h1>
-
-            <p>
-                Registrar un nuevo producto en el inventario
-            </p>
-
-        </div>
-
-        <a
-            href="{{ route('productos.index') }}"
-            class="btn btn-secondary"
-        >
-            ← Volver
-        </a>
+        <p>
+            Registrar un nuevo producto en el inventario
+        </p>
 
     </div>
 
@@ -227,10 +203,10 @@
         <div class="alert alert-danger">
 
             <strong>
-                No se pudo registrar el producto.
+                No se pudo registrar el producto:
             </strong>
 
-            <ul style="margin-top: 8px; padding-left: 20px;">
+            <ul style="margin-top:8px; margin-left:20px;">
 
                 @foreach($errors->all() as $error)
 
@@ -247,6 +223,8 @@
     @endif
 
 
+    {{-- FORMULARIO --}}
+
     <div class="panel">
 
         <form
@@ -257,7 +235,8 @@
             @csrf
 
 
-            <div class="row">
+            <div class="form-grid">
+
 
                 {{-- CÓDIGO --}}
 
@@ -266,7 +245,10 @@
                     <label for="codigo">
 
                         Código
-                        <span class="required">*</span>
+
+                        <span class="required">
+                            *
+                        </span>
 
                     </label>
 
@@ -304,7 +286,10 @@
                     <label for="espesor">
 
                         Espesor
-                        <span class="required">*</span>
+
+                        <span class="required">
+                            *
+                        </span>
 
                     </label>
 
@@ -334,36 +319,39 @@
 
                 </div>
 
-            </div>
 
+                {{-- DESCRIPCIÓN --}}
 
-            {{-- DESCRIPCIÓN --}}
+                <div class="form-group full">
 
-            <div class="form-group">
+                    <label for="descripcion">
 
-                <label for="descripcion">
+                        Descripción
 
-                    Descripción
-                    <span class="required">*</span>
+                        <span class="required">
+                            *
+                        </span>
 
-                </label>
+                    </label>
 
-                <textarea
-                    id="descripcion"
-                    name="descripcion"
-                    class="form-control"
-                    maxlength="255"
-                    placeholder="Ingrese la descripción del producto"
-                    required
-                >{{ old('descripcion') }}</textarea>
+                    <textarea
+                        id="descripcion"
+                        name="descripcion"
+                        class="form-control"
+                        maxlength="255"
+                        placeholder="Ingrese la descripción del producto"
+                        required
+                    >{{ old('descripcion') }}</textarea>
 
-                @error('descripcion')
+                    @error('descripcion')
 
-                    <div class="error">
-                        {{ $message }}
-                    </div>
+                        <div class="error">
+                            {{ $message }}
+                        </div>
 
-                @enderror
+                    @enderror
+
+                </div>
 
             </div>
 
@@ -372,18 +360,22 @@
 
             <div class="alert-info">
 
-                <strong>Información importante</strong>
+                <strong>
+                    Información importante
+                </strong>
 
                 <br>
 
                 El producto se registrará como
-                <strong>activo</strong> y tendrá un stock inicial de
+                <strong>activo</strong>
+                y tendrá un stock inicial de
                 <strong>0</strong>.
 
                 <br><br>
 
                 El stock deberá ingresarse posteriormente mediante
-                el módulo de <strong>Entradas de Stock</strong>.
+                el módulo de
+                <strong>Entradas de Stock</strong>.
 
             </div>
 
@@ -396,7 +388,7 @@
                     href="{{ route('productos.index') }}"
                     class="btn btn-secondary"
                 >
-                    Cancelar
+                    ← Cancelar
                 </a>
 
                 <button
@@ -408,12 +400,11 @@
 
             </div>
 
+
         </form>
 
     </div>
 
 </div>
 
-</body>
-
-</html>
+@endsection

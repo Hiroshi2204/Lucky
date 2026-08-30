@@ -3,6 +3,7 @@
 namespace App\Exports;
 
 use App\Models\Venta;
+use App\Helpers\LocalHelper;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
@@ -36,17 +37,13 @@ class VentasExport implements
 
     public function collection()
     {
+        $localId = LocalHelper::id();
+
         $query = Venta::query()
+            ->where('local_id', $localId)
             ->orderBy('fecha', 'desc');
 
-        /*
-        |--------------------------------------------------------------
-        | FECHA INICIO
-        |--------------------------------------------------------------
-        */
-
         if ($this->fechaInicio) {
-
             $query->whereDate(
                 'fecha',
                 '>=',
@@ -54,14 +51,7 @@ class VentasExport implements
             );
         }
 
-        /*
-        |--------------------------------------------------------------
-        | FECHA FIN
-        |--------------------------------------------------------------
-        */
-
         if ($this->fechaFin) {
-
             $query->whereDate(
                 'fecha',
                 '<=',
@@ -69,42 +59,21 @@ class VentasExport implements
             );
         }
 
-        /*
-        |--------------------------------------------------------------
-        | ESTADO DE VENTA
-        |--------------------------------------------------------------
-        */
-
         if ($this->estado) {
-
             $query->where(
                 'estado',
                 $this->estado
             );
         }
 
-        /*
-        |--------------------------------------------------------------
-        | ESTADO DE PAGO
-        |--------------------------------------------------------------
-        */
-
         if ($this->estadoPago) {
-
             $query->where(
                 'estado_pago',
                 $this->estadoPago
             );
         }
 
-        /*
-        |--------------------------------------------------------------
-        | MEDIO DE PAGO
-        |--------------------------------------------------------------
-        */
-
         if ($this->medioPago) {
-
             $query->where(
                 'medio_pago',
                 $this->medioPago

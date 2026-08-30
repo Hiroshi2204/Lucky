@@ -14,6 +14,7 @@ use App\Exports\InventarioExport;
 use App\Exports\MovimientosExport;
 use App\Exports\VentasExport;
 use App\Exports\PagosExport;
+use App\Helpers\LocalHelper;
 
 class ReporteController extends Controller
 {
@@ -34,7 +35,10 @@ class ReporteController extends Controller
 
     public function inventario(Request $request)
     {
-        $query = Producto::query();
+        $localId = LocalHelper::id();
+
+        $query = Producto::query()
+            ->where('local_id', $localId);
 
         if ($request->filled('buscar')) {
 
@@ -79,7 +83,10 @@ class ReporteController extends Controller
      */
     public function inventarioPdf(Request $request)
     {
-        $query = Producto::query();
+        $localId = LocalHelper::id();
+
+        $query = Producto::query()
+            ->where('local_id', $localId);
 
         if ($request->filled('estado')) {
 
@@ -130,7 +137,10 @@ class ReporteController extends Controller
 
     public function movimientos(Request $request)
     {
+        $localId = LocalHelper::id();
+
         $query = Movimiento::with('producto')
+            ->where('local_id', $localId)
             ->orderBy('fecha', 'desc');
 
         if ($request->filled('tipo')) {
@@ -173,7 +183,10 @@ class ReporteController extends Controller
      */
     public function movimientosPdf(Request $request)
     {
+        $localId = LocalHelper::id();
+
         $query = Movimiento::with('producto')
+            ->where('local_id', $localId)
             ->orderBy('fecha', 'desc');
 
         if ($request->filled('fecha_inicio')) {
@@ -240,10 +253,13 @@ class ReporteController extends Controller
 
     public function ventas(Request $request)
     {
+        $localId = LocalHelper::id();
+
         $query = Venta::with([
             'detalles.producto',
             'pagos'
         ])
+            ->where('local_id', $localId)
             ->orderBy('fecha', 'desc');
 
         if ($request->filled('medio_pago')) {
@@ -302,10 +318,14 @@ class ReporteController extends Controller
      */
     public function ventasPdf(Request $request)
     {
+        $localId = LocalHelper::id();
+
         $query = Venta::with([
             'detalles.producto',
             'pagos'
-        ])->orderBy('fecha', 'desc');
+        ])
+            ->where('local_id', $localId)
+            ->orderBy('fecha', 'desc');
 
         if ($request->filled('fecha_inicio')) {
             $query->whereDate(
@@ -402,92 +422,106 @@ class ReporteController extends Controller
      * ============================================================
      */
 
-    public function pagos(Request $request)
-    {
-        $query = Pago::with('venta')
-            ->orderBy('fecha', 'desc');
-
-        if ($request->filled('medio_pago')) {
-
-            $query->where(
-                'medio_pago',
-                $request->medio_pago
-            );
-        }
-
-        if ($request->filled('fecha_inicio')) {
-
-            $query->whereDate(
-                'fecha',
-                '>=',
-                $request->fecha_inicio
-            );
-        }
-
-        if ($request->filled('fecha_fin')) {
-
-            $query->whereDate(
-                'fecha',
-                '<=',
-                $request->fecha_fin
-            );
-        }
-
-        $pagos = $query->get();
-
-        return view(
-            'reportes.pagos',
-            compact('pagos')
-        );
-    }
-
-
-    /**
-     * PAGOS PDF
-     */
     public function pagosPdf(Request $request)
     {
+        $localId = LocalHelper::id();
+
         $query = Pago::with('venta')
+            ->whereHas('venta', function ($q) use ($localId) {
+
+                $q->where('estado', 'ACTIVA')
+                    ->where('local_id', $localId);
+            })
             ->orderBy('fecha', 'desc');
 
-        if ($request->filled('fecha_inicio')) {
-            $query->whereDate(
-                'fecha',
-                '>=',
-                $request->fecha_inicio
-            );
-        }
-
-        if ($request->filled('fecha_fin')) {
-            $query->whereDate(
-                'fecha',
-                '<=',
-                $request->fecha_fin
-            );
-        }
-
-        if ($request->filled('medio_pago')) {
-            $query->where(
-                'medio_pago',
-                $request->medio_pago
-            );
-        }
-
-        $pagos = $query->get();
-
-        $totalPagos = $pagos->sum('monto');
 
         /*
     |--------------------------------------------------------------------------
-    | FILTROS
+    | FILTRO FECHA INICIO
+    |--------------------------------------------------------------------------
+    */
+
+        if ($request->filled('fecha_inicio')) {
+
+            $query->whereDate(
+                'fecha',
+                '>=',
+                $request->fecha_inicio
+            );
+        }
+
+
+        /*
+    |--------------------------------------------------------------------------
+    | FILTRO FECHA FIN
+    |--------------------------------------------------------------------------
+    */
+
+        if ($request->filled('fecha_fin')) {
+
+            $query->whereDate(
+                'fecha',
+                '<=',
+                $request->fecha_fin
+            );
+        }
+
+
+        /*
+    |--------------------------------------------------------------------------
+    | FILTRO MEDIO DE PAGO
+    |--------------------------------------------------------------------------
+    */
+
+        if ($request->filled('medio_pago')) {
+
+            $query->where(
+                'medio_pago',
+                $request->medio_pago
+            );
+        }
+
+
+        /*
+    |--------------------------------------------------------------------------
+    | OBTENER PAGOS
+    |--------------------------------------------------------------------------
+    */
+
+        $pagos = $query->get();
+
+
+        /*
+    |--------------------------------------------------------------------------
+    | TOTAL
+    |--------------------------------------------------------------------------
+    */
+
+        $totalPagos = $pagos->sum('monto');
+
+
+        /*
+    |--------------------------------------------------------------------------
+    | FILTROS PARA EL PDF
     |--------------------------------------------------------------------------
     */
 
         $filtros = [
+
             'fecha_inicio' => $request->input('fecha_inicio'),
-            'fecha_fin'    => $request->input('fecha_fin'),
-            'medio_pago'   => $request->input('medio_pago'),
+
+            'fecha_fin' => $request->input('fecha_fin'),
+
+            'medio_pago' => $request->input('medio_pago'),
+
         ];
+
+
+        /*
+    |--------------------------------------------------------------------------
+    | GENERAR PDF
+    |--------------------------------------------------------------------------
+    */
 
         $pdf = Pdf::loadView(
             'reportes.pdf.pagos',
@@ -498,7 +532,9 @@ class ReporteController extends Controller
             )
         );
 
+
         $pdf->setPaper('a4', 'landscape');
+
 
         return $pdf->download(
             'reporte-pagos-' .

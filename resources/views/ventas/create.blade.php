@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Nueva venta - Lucky Inventario')
+@section('title', 'Nueva venta')
 
 
 @section('styles')
@@ -363,6 +363,41 @@
         }
 
     }
+
+    .input-descuento {
+        display: flex;
+        align-items: center;
+        border: 1px solid #d1d5db;
+        border-radius: 8px;
+        overflow: hidden;
+        background: white;
+    }
+
+    .input-descuento span {
+        padding: 11px 12px;
+        background: #f3f4f6;
+        color: #6b7280;
+        font-weight: bold;
+        border-right: 1px solid #d1d5db;
+    }
+
+    .input-descuento input {
+        border: none;
+        border-radius: 0;
+        text-align: right;
+        flex: 1;
+    }
+
+    .input-descuento input:focus {
+        outline: none;
+        border: none;
+    }
+
+    .texto-ayuda {
+        margin-top: 5px;
+        color: #6b7280;
+        font-size: 12px;
+    }
 </style>
 @endsection
 
@@ -582,6 +617,34 @@
 
             </div>
 
+            {{-- DESCUENTO --}}
+
+            <div class="form-group">
+
+                <label>
+                    Descuento de venta
+                </label>
+
+                <div class="input-descuento">
+
+                    <span>S/</span>
+
+                    <input
+                        type="number"
+                        id="descuento"
+                        min="0"
+                        step="0.01"
+                        value="0"
+                        placeholder="0.00">
+
+                </div>
+
+                <small class="texto-ayuda">
+                    Descuento aplicado al cliente sobre el total de la venta.
+                </small>
+
+            </div>
+
 
             {{-- MONTO PAGADO --}}
 
@@ -590,14 +653,15 @@
                 <label>
                     Monto pagado
                 </label>
-
-                <input
-                    type="number"
-                    id="montoPagado"
-                    min="0"
-                    step="0.01"
-                    value="0">
-
+                <div class="input-descuento">
+                    <span>S/</span>
+                    <input
+                        type="number"
+                        id="montoPagado"
+                        min="0"
+                        step="0.01"
+                        value="0">
+                </div>
             </div>
 
 
@@ -630,6 +694,32 @@
 
                 <strong id="cantidadProductos">
                     0
+                </strong>
+
+            </div>
+
+
+            <div class="resumen-row">
+
+                <span>
+                    Subtotal
+                </span>
+
+                <strong id="subtotalVenta">
+                    S/ 0.00
+                </strong>
+
+            </div>
+
+
+            <div class="resumen-row">
+
+                <span>
+                    Descuento
+                </span>
+
+                <strong id="descuentoVenta">
+                    S/ 0.00
                 </strong>
 
             </div>
@@ -754,6 +844,9 @@
 
     const montoPagado =
         document.getElementById('montoPagado');
+
+    const descuento =
+        document.getElementById('descuento');
 
     const btnRegistrar =
         document.getElementById('btnRegistrar');
@@ -1389,17 +1482,40 @@
     }
 
     function calcularTotales() {
-        let total = 0;
+
+        let subtotal = 0;
 
         productosVenta.forEach(
             function(item) {
 
-                total +=
-                    item.cantidad *
-                    item.precio_unitario;
+                subtotal +=
+                    Number(item.cantidad || 0) *
+                    Number(item.precio_unitario || 0);
 
             }
         );
+
+
+        let descuentoValor =
+            Number(descuento.value) || 0;
+
+
+        if (descuentoValor < 0) {
+            descuentoValor = 0;
+        }
+
+
+        // El descuento nunca puede superar el subtotal
+        if (descuentoValor > subtotal) {
+            descuentoValor = subtotal;
+        }
+
+
+        const total =
+            Math.max(
+                subtotal - descuentoValor,
+                0
+            );
 
 
         const pagado =
@@ -1417,6 +1533,18 @@
                 'cantidadProductos'
             ).textContent =
             productosVenta.length;
+
+
+        document.getElementById(
+                'subtotalVenta'
+            ).textContent =
+            `S/ ${dinero(subtotal)}`;
+
+
+        document.getElementById(
+                'descuentoVenta'
+            ).textContent =
+            `S/ ${dinero(descuentoValor)}`;
 
 
         document.getElementById(
@@ -1467,6 +1595,25 @@
     montoPagado.addEventListener(
         'input',
         function() {
+
+            calcularTotales();
+
+        }
+    );
+
+    descuento.addEventListener(
+        'input',
+        function() {
+
+            let valor =
+                Number(this.value);
+
+            if (
+                isNaN(valor) ||
+                valor < 0
+            ) {
+                this.value = 0;
+            }
 
             calcularTotales();
 
@@ -1554,18 +1701,48 @@
 
         }
 
-        let total = 0;
-
+        let subtotal = 0;
 
         productosVenta.forEach(
             function(item) {
 
-                total +=
-                    item.cantidad *
-                    item.precio_unitario;
+                subtotal +=
+                    Number(item.cantidad) *
+                    Number(item.precio_unitario);
 
             }
         );
+
+
+        const descuentoValor =
+            Number(descuento.value) || 0;
+
+
+        if (descuentoValor < 0) {
+
+            mostrarError(
+                'El descuento no puede ser negativo.'
+            );
+
+            return;
+        }
+
+
+        if (descuentoValor > subtotal) {
+
+            mostrarError(
+                'El descuento no puede ser mayor al subtotal de la venta.'
+            );
+
+            return;
+        }
+
+
+        const total =
+            Math.max(
+                subtotal - descuentoValor,
+                0
+            );
 
         const pagado =
             Number(montoPagado.value) || 0;
@@ -1667,6 +1844,8 @@
                 medioPagoOtro.value : null,
 
             estado_pago: estadoPago.value,
+
+            descuento: descuentoValor,
 
             monto_pagado: pagado,
 

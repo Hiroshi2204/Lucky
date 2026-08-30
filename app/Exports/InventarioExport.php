@@ -3,6 +3,7 @@
 namespace App\Exports;
 
 use App\Models\Producto;
+use App\Helpers\LocalHelper;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
@@ -23,7 +24,10 @@ class InventarioExport implements
 
     public function collection()
     {
-        $query = Producto::query();
+        $localId = LocalHelper::id();
+
+        $query = Producto::query()
+            ->where('local_id', $localId);
 
         if ($this->estado !== null && $this->estado !== '') {
             $query->where('estado', $this->estado);

@@ -10,9 +10,9 @@ class LocalSeeder extends Seeder
     public function run()
     {
         Local::updateOrCreate(
-            ['codigo' => 'LOCAL-01'],
+            ['codigo' => 'Sd-Huancan'],
             [
-                'nombre' => 'Local 01',
+                'nombre' => 'Sede Huancan',
                 'direccion' => null,
                 'telefono' => null,
                 'estado' => true,
@@ -20,9 +20,9 @@ class LocalSeeder extends Seeder
         );
 
         Local::updateOrCreate(
-            ['codigo' => 'LOCAL-02'],
+            ['codigo' => 'Sd-Tambo'],
             [
-                'nombre' => 'Local 02',
+                'nombre' => 'Sede Tambo',
                 'direccion' => null,
                 'telefono' => null,
                 'estado' => true,

@@ -348,6 +348,203 @@ class UserController extends Controller
 
 
     /**
+     * FORMULARIO EDITAR USUARIO
+     */
+    public function edit(User $usuario)
+    {
+
+        if ((int) $usuario->rol_id === 1) {
+
+            return back()->withErrors([
+                'usuario' =>
+                'No se puede editar un administrador.'
+            ]);
+        }
+
+        $usuario->load([
+            'persona',
+            'rol',
+            'locales'
+        ]);
+
+
+        $locales = Local::where('estado', true)
+            ->orderBy('nombre')
+            ->get();
+
+
+        return view(
+            'usuarios.edit',
+            compact(
+                'usuario',
+                'locales'
+            )
+        );
+    }
+
+
+    /**
+     * ACTUALIZAR USUARIO
+     */
+    public function update(Request $request, User $usuario)
+    {
+        /*
+    |--------------------------------------------------------------------------
+    | NO PERMITIR EDITAR ADMINISTRADOR
+    |--------------------------------------------------------------------------
+    */
+
+        if ((int) $usuario->rol_id === 1) {
+
+            return back()->withErrors([
+                'usuario' =>
+                'No se puede editar un administrador.'
+            ]);
+        }
+
+
+        /*
+    |--------------------------------------------------------------------------
+    | VALIDACIÓN
+    |--------------------------------------------------------------------------
+    */
+
+        $validated = $request->validate([
+
+            'username' => [
+                'required',
+                'string',
+                'max:50',
+                'unique:users,username,' . $usuario->id
+            ],
+
+            'password' => [
+                'nullable',
+                'string',
+                'min:6',
+                'confirmed'
+            ],
+
+            'local_id' => [
+                'required',
+                'exists:locales,id'
+            ],
+
+        ], [
+
+            'username.required' =>
+            'El nombre de usuario es obligatorio.',
+
+            'username.unique' =>
+            'El nombre de usuario ya está registrado.',
+
+            'password.min' =>
+            'La contraseña debe tener mínimo 6 caracteres.',
+
+            'password.confirmed' =>
+            'Las contraseñas no coinciden.',
+
+            'local_id.required' =>
+            'Debe seleccionar un local.',
+
+            'local_id.exists' =>
+            'El local seleccionado no existe.',
+        ]);
+
+
+        /*
+    |--------------------------------------------------------------------------
+    | ACTUALIZAR USUARIO Y LOCAL
+    |--------------------------------------------------------------------------
+    */
+
+        try {
+
+            DB::transaction(function () use (
+                $validated,
+                $usuario
+            ) {
+
+                /*
+            |--------------------------------------------------------------------------
+            | DATOS DEL USUARIO
+            |--------------------------------------------------------------------------
+            */
+
+                $datos = [
+
+                    'username' =>
+                    $validated['username'],
+
+                ];
+
+
+                /*
+            |--------------------------------------------------------------------------
+            | CAMBIAR CONTRASEÑA
+            |--------------------------------------------------------------------------
+            */
+
+                if (!empty($validated['password'])) {
+
+                    $datos['password'] =
+                        Hash::make(
+                            $validated['password']
+                        );
+                }
+
+
+                /*
+            |--------------------------------------------------------------------------
+            | ACTUALIZAR USUARIO
+            |--------------------------------------------------------------------------
+            */
+
+                $usuario->update($datos);
+
+
+                /*
+            |--------------------------------------------------------------------------
+            | CAMBIAR LOCAL
+            |--------------------------------------------------------------------------
+            |
+            | detach() elimina la relación anterior.
+            | attach() asigna el nuevo local.
+            |
+            */
+
+                $usuario->locales()->sync([
+
+                    $validated['local_id'] => [
+
+                        'estado' => true
+
+                    ]
+
+                ]);
+            });
+
+
+            return redirect()
+                ->route('usuarios.index')
+                ->with(
+                    'success',
+                    'Usuario, contraseña y local actualizados correctamente.'
+                );
+        } catch (\Throwable $e) {
+
+            return back()
+                ->withInput()
+                ->withErrors([
+
+                    'usuario' =>
+                    'No se pudo actualizar el usuario.'
+
+                ]);
+        }
+    }
+
+    /**
      * ACTIVAR / DESACTIVAR USUARIO
      */
     public function cambiarEstado(User $usuario)

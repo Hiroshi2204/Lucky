@@ -18,6 +18,7 @@ class Venta extends Model
         'estado',
         'fecha',
         'total',
+        'descuento',
         'medio_pago',
         'medio_pago_otro',
         'estado_pago',
@@ -29,6 +30,7 @@ class Venta extends Model
     protected $casts = [
         'fecha' => 'datetime',
         'total' => 'decimal:2',
+        'descuento' => 'decimal:2',
         'monto_pagado' => 'decimal:2',
         'saldo_pendiente' => 'decimal:2',
     ];

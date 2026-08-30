@@ -103,6 +103,14 @@ Route::middleware('auth')->group(function () {
     )
         ->middleware('role:ADMINISTRADOR')
         ->name('auditorias.show');
+
+    Route::get('/usuarios/{usuario}/edit', [UserController::class, 'edit'])
+        ->middleware('role:ADMINISTRADOR')
+        ->name('usuarios.edit');
+
+    Route::put('/usuarios/{usuario}', [UserController::class, 'update'])
+        ->middleware('role:ADMINISTRADOR')
+        ->name('usuarios.update');
 });
 
 

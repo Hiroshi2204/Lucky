@@ -99,6 +99,12 @@ class VentaController extends Controller
                 'in:CANCELADO,PENDIENTE,PARCIAL,OTRO'
             ],
 
+            'descuento' => [
+                'required',
+                'numeric',
+                'min:0'
+            ],
+
             'monto_pagado' => [
                 'required',
                 'numeric',
@@ -220,6 +226,19 @@ class VentaController extends Controller
                     ];
                 }
 
+                $subtotal = $total;
+
+                $descuento = $validated['descuento'];
+
+                if ($descuento > $subtotal) {
+
+                    throw new \Exception(
+                        'El descuento no puede ser mayor al subtotal de la venta.'
+                    );
+                }
+
+                $total = $subtotal - $descuento;
+
 
                 if ($validated['monto_pagado'] > $total) {
 
@@ -238,6 +257,8 @@ class VentaController extends Controller
 
                     'local_id' => $localId,
 
+                    'user_id' => auth()->id(),
+
                     'estado' => 'ACTIVA',
 
                     'fecha' =>
@@ -245,6 +266,9 @@ class VentaController extends Controller
 
                     'total' =>
                     $total,
+
+                    'descuento' =>
+                    $descuento,
 
                     'medio_pago' =>
                     $validated['medio_pago'],
@@ -299,6 +323,11 @@ class VentaController extends Controller
 
                         'producto_id' =>
                         $item['producto']->id,
+
+                        'user_id' => auth()->id(),
+
+                        'local_id' =>
+                        $localId,
 
                         'tipo' =>
                         'SALIDA',

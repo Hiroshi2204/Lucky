@@ -4,6 +4,7 @@ namespace App\Imports;
 
 use App\Models\Producto;
 use App\Models\Movimiento;
+use App\Helpers\LocalHelper;
 use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
@@ -19,6 +20,20 @@ class EntradasImport implements ToCollection, WithHeadingRow
 
     public function collection(Collection $rows)
     {
+        /*
+         * ==========================================================
+         * LOCAL ACTIVO
+         * ==========================================================
+         */
+
+        $localId = LocalHelper::id();
+
+        if (!$localId) {
+            throw new \Exception(
+                'No hay un local seleccionado.'
+            );
+        }
+
         foreach ($rows as $index => $row) {
 
             $fila = $index + 2;
@@ -86,16 +101,24 @@ class EntradasImport implements ToCollection, WithHeadingRow
                     $descripcion,
                     $espesor,
                     $cantidad,
-                    $fila
+                    $fila,
+                    $localId
                 ) {
 
                     /*
-                     * Buscar producto por código
+                     * =================================================
+                     * BUSCAR PRODUCTO SOLO EN EL LOCAL ACTIVO
+                     * =================================================
                      */
+
                     $producto = Producto::where(
                         'codigo',
                         $codigo
                     )
+                        ->where(
+                            'local_id',
+                            $localId
+                        )
                         ->lockForUpdate()
                         ->first();
 
@@ -108,6 +131,7 @@ class EntradasImport implements ToCollection, WithHeadingRow
                     if (!$producto) {
 
                         $producto = Producto::create([
+                            'local_id' => $localId,
                             'codigo' => $codigo,
                             'descripcion' => $descripcion,
                             'espesor' => $espesor,
@@ -132,7 +156,7 @@ class EntradasImport implements ToCollection, WithHeadingRow
 
                             throw new \Exception(
                                 "El producto {$codigo} ya existe " .
-                                    "pero tiene un espesor diferente."
+                                    "en este local pero tiene un espesor diferente."
                             );
                         }
 
@@ -142,11 +166,13 @@ class EntradasImport implements ToCollection, WithHeadingRow
 
                     /*
                      * =================================================
-                     * REGISTRAR ENTRADA
+                     * REGISTRAR MOVIMIENTO EN EL LOCAL ACTIVO
                      * =================================================
                      */
 
                     Movimiento::create([
+                        'local_id' => $localId,
+                        'user_id' => auth()->id(),
                         'producto_id' => $producto->id,
                         'tipo' => 'ENTRADA',
                         'cantidad' => $cantidad,
@@ -165,7 +191,9 @@ class EntradasImport implements ToCollection, WithHeadingRow
                 });
 
                 /*
-                 * La transacción terminó correctamente
+                 * =====================================================
+                 * TRANSACCIÓN CORRECTA
+                 * =====================================================
                  */
 
                 $this->exitosas++;

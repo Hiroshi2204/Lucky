@@ -3,6 +3,7 @@
 namespace App\Exports;
 
 use App\Models\Movimiento;
+use App\Helpers\LocalHelper;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
@@ -30,7 +31,10 @@ class MovimientosExport implements
 
     public function collection()
     {
+        $localId = LocalHelper::id();
+
         $query = Movimiento::with('producto')
+            ->where('local_id', $localId)
             ->orderBy('fecha', 'desc');
 
         if ($this->fechaInicio) {

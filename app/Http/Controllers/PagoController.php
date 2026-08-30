@@ -218,6 +218,8 @@ class PagoController extends Controller
                     'venta_id' =>
                     $venta->id,
 
+                    'user_id' => auth()->id(),
+
                     'fecha' =>
                     $validated['fecha'] ?? now(),
 

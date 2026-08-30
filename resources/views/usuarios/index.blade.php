@@ -1,11 +1,10 @@
 @extends('layouts.app')
 
-@section('title', 'Usuarios - Macrotechos')
+@section('title', 'Usuarios')
 
 @section('styles')
 
 <style>
-
     .usuarios-container {
         width: 100%;
     }
@@ -243,6 +242,15 @@
 
     }
 
+    .btn-editar {
+        background: #dbeafe;
+        color: #1d4ed8;
+        text-decoration: none;
+    }
+
+    .btn-editar:hover {
+        background: #bfdbfe;
+    }
 </style>
 
 @endsection
@@ -287,11 +295,11 @@
 
     @if(session('success'))
 
-        <div class="alert alert-success">
+    <div class="alert alert-success">
 
-            {{ session('success') }}
+        {{ session('success') }}
 
-        </div>
+    </div>
 
     @endif
 
@@ -300,11 +308,11 @@
 
     @if($errors->any())
 
-        <div class="alert alert-error">
+    <div class="alert alert-error">
 
-            {{ $errors->first() }}
+        {{ $errors->first() }}
 
-        </div>
+    </div>
 
     @endif
 
@@ -358,169 +366,185 @@
 
                     @forelse($usuarios as $usuario)
 
-                        <tr>
+                    <tr>
 
 
-                            {{-- DOCUMENTO --}}
+                        {{-- DOCUMENTO --}}
 
-                            <td>
+                        <td>
 
-                                <strong>
-                                    {{ $usuario->persona->numero_documento ?? '-' }}
-                                </strong>
+                            <strong>
+                                {{ $usuario->persona->numero_documento ?? '-' }}
+                            </strong>
 
-                            </td>
+                        </td>
 
 
-                            {{-- TRABAJADOR --}}
+                        {{-- TRABAJADOR --}}
 
-                            <td>
+                        <td>
 
-                                <div class="usuario-nombre">
+                            <div class="usuario-nombre">
 
-                                    {{ $usuario->persona->nombres ?? '' }}
+                                {{ $usuario->persona->nombres ?? '' }}
 
-                                    {{ $usuario->persona->apellido_paterno ?? '' }}
+                                {{ $usuario->persona->apellido_paterno ?? '' }}
 
-                                    {{ $usuario->persona->apellido_materno ?? '' }}
+                                {{ $usuario->persona->apellido_materno ?? '' }}
 
-                                </div>
+                            </div>
 
-                            </td>
+                        </td>
 
 
-                            {{-- USUARIO --}}
+                        {{-- USUARIO --}}
 
-                            <td>
+                        <td>
 
-                                {{ $usuario->username }}
+                            {{ $usuario->username }}
 
-                            </td>
+                        </td>
 
 
-                            {{-- ROL --}}
+                        {{-- ROL --}}
 
-                            <td>
+                        <td>
 
-                                @if($usuario->rol_id == 1)
+                            @if($usuario->rol_id == 1)
 
-                                    <span class="badge badge-rol">
-                                        Administrador
-                                    </span>
+                            <span class="badge badge-rol">
+                                Administrador
+                            </span>
 
-                                @else
+                            @else
 
-                                    <span class="badge badge-rol">
-                                        Trabajador
-                                    </span>
+                            <span class="badge badge-rol">
+                                Trabajador
+                            </span>
 
-                                @endif
+                            @endif
 
-                            </td>
+                        </td>
 
 
-                            {{-- LOCAL --}}
+                        {{-- LOCAL --}}
 
-                            <td>
+                        <td>
 
-                                @forelse($usuario->locales as $local)
+                            @forelse($usuario->locales as $local)
 
-                                    <span class="local-badge">
+                            <span class="local-badge">
 
-                                        {{ $local->nombre }}
+                                {{ $local->nombre }}
 
-                                    </span>
+                            </span>
 
-                                @empty
+                            @empty
 
-                                    <span class="admin-text">
-                                        Sin local
-                                    </span>
+                            <span class="admin-text">
+                                Sin local
+                            </span>
 
-                                @endforelse
+                            @endforelse
 
-                            </td>
+                        </td>
 
 
-                            {{-- ESTADO --}}
+                        {{-- ESTADO --}}
 
-                            <td>
+                        <td>
 
-                                @if($usuario->estado_registro)
+                            @if($usuario->estado_registro)
 
-                                    <span class="badge badge-activo">
-                                        Activo
-                                    </span>
+                            <span class="badge badge-activo">
+                                Activo
+                            </span>
 
-                                @else
+                            @else
 
-                                    <span class="badge badge-inactivo">
-                                        Inactivo
-                                    </span>
+                            <span class="badge badge-inactivo">
+                                Inactivo
+                            </span>
 
-                                @endif
+                            @endif
 
-                            </td>
+                        </td>
 
 
-                            {{-- ACCIÓN --}}
+                        {{-- ACCIÓN --}}
 
-                            <td>
+                        <td>
 
-                                @if($usuario->rol_id != 1)
+                            @if($usuario->rol_id != 1)
 
-                                    <form
-                                        method="POST"
-                                        action="{{ route(
-                                            'usuarios.estado',
-                                            $usuario
-                                        ) }}">
+                            <div style="display:flex; gap:7px; align-items:center;">
 
-                                        @csrf
+                                {{-- EDITAR --}}
+                                <a
+                                    href="{{ route('usuarios.edit', $usuario) }}"
+                                    class="btn-estado btn-editar">
 
-                                        @method('PATCH')
+                                    Editar
 
-                                        <button
-                                            type="submit"
-                                            class="btn-estado
-                                                {{ $usuario->estado_registro
-                                                    ? 'btn-desactivar'
-                                                    : 'btn-activar' }}">
+                                </a>
 
-                                            {{ $usuario->estado_registro
-                                                ? 'Desactivar'
-                                                : 'Activar' }}
 
-                                        </button>
+                                {{-- ACTIVAR / DESACTIVAR --}}
+                                <form
+                                    method="POST"
+                                    action="{{ route(
+                                    'usuarios.estado',
+                                    $usuario
+                                ) }}">
 
-                                    </form>
+                                    @csrf
 
-                                @else
+                                    @method('PATCH')
 
-                                    <span class="admin-text">
-                                        Protegido
-                                    </span>
+                                    <button
+                                        type="submit"
+                                        class="btn-estado
+                                        {{ $usuario->estado_registro
+                                            ? 'btn-desactivar'
+                                            : 'btn-activar' }}">
 
-                                @endif
+                                        {{ $usuario->estado_registro
+                                        ? 'Desactivar'
+                                        : 'Activar' }}
 
-                            </td>
+                                    </button>
 
-                        </tr>
+                                </form>
+
+                            </div>
+
+                            @else
+
+                            <span class="admin-text">
+                                Protegido
+                            </span>
+                            
+
+                            @endif
+
+                        </td>
+
+                    </tr>
 
 
                     @empty
 
-                        <tr>
+                    <tr>
 
-                            <td
-                                colspan="7"
-                                style="text-align:center;padding:40px;">
+                        <td
+                            colspan="7"
+                            style="text-align:center;padding:40px;">
 
-                                No hay usuarios registrados.
+                            No hay usuarios registrados.
 
-                            </td>
+                        </td>
 
-                        </tr>
+                    </tr>
 
                     @endforelse
 
@@ -535,11 +559,11 @@
 
         @if($usuarios->hasPages())
 
-            <div class="usuarios-pagination">
+        <div class="usuarios-pagination">
 
-                {{ $usuarios->links() }}
+            {{ $usuarios->links() }}
 
-            </div>
+        </div>
 
         @endif
 

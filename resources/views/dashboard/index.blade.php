@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Dashboard - Inventario')
+@section('title', 'Inicio')
 
 @section('content')
 @section('head')

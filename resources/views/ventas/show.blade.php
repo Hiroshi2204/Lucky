@@ -64,7 +64,7 @@
 
         .info-grid {
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
+            grid-template-columns: repeat(3, 1fr);
             gap: 15px;
         }
 
@@ -328,12 +328,49 @@
                 <div class="info-box">
 
                     <small>
+                        Subtotal
+                    </small>
+
+                    <strong>
+                        S/
+                        {{ number_format(
+                $venta->total + $venta->descuento,
+                2
+            ) }}
+                    </strong>
+
+                </div>
+
+
+                <div class="info-box">
+
+                    <small>
+                        Descuento
+                    </small>
+
+                    <strong style="color:#dc2626;">
+                        - S/
+                        {{ number_format(
+                $venta->descuento,
+                2
+            ) }}
+                    </strong>
+
+                </div>
+
+
+                <div class="info-box">
+
+                    <small>
                         Total
                     </small>
 
                     <strong class="total">
                         S/
-                        {{ number_format($venta->total, 2) }}
+                        {{ number_format(
+                $venta->total,
+                2
+            ) }}
                     </strong>
 
                 </div>
@@ -347,7 +384,10 @@
 
                     <strong class="pagado">
                         S/
-                        {{ number_format($venta->monto_pagado, 2) }}
+                        {{ number_format(
+                $venta->monto_pagado,
+                2
+            ) }}
                     </strong>
 
                 </div>
@@ -361,7 +401,10 @@
 
                     <strong class="pendiente">
                         S/
-                        {{ number_format($venta->saldo_pendiente, 2) }}
+                        {{ number_format(
+                $venta->saldo_pendiente,
+                2
+            ) }}
                     </strong>
 
                 </div>

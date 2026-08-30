@@ -5,7 +5,6 @@
 @section('styles')
 
 <style>
-
     .crear-container {
         width: 100%;
         max-width: 950px;
@@ -257,6 +256,113 @@
 
     }
 
+    /* =====================================================
+   CONTRASEÑA
+===================================================== */
+
+    .password-wrapper {
+        position: relative;
+    }
+
+    .password-wrapper .form-control {
+        padding-right: 45px;
+    }
+
+    .password-toggle {
+        position: absolute;
+        right: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        border: 0;
+        background: transparent;
+        color: #6b7280;
+        cursor: pointer;
+        font-size: 16px;
+        padding: 4px;
+    }
+
+    .password-toggle:hover {
+        color: #2563eb;
+    }
+
+
+    /* REQUISITOS */
+
+    .password-requirements {
+        margin-top: 10px;
+        padding: 10px 12px;
+        background: #f8fafc;
+        border-radius: 8px;
+        border: 1px solid #e5e7eb;
+    }
+
+    .password-requirement {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        font-size: 12px;
+        color: #6b7280;
+        margin: 4px 0;
+    }
+
+    .password-requirement.valid {
+        color: #15803d;
+    }
+
+    .password-requirement.invalid {
+        color: #dc2626;
+    }
+
+    .requirement-icon {
+        font-weight: bold;
+        width: 14px;
+    }
+
+
+    /* CONFIRMACIÓN */
+
+    .password-match {
+        margin-top: 7px;
+        font-size: 12px;
+        min-height: 16px;
+    }
+
+    .password-match.valid {
+        color: #15803d;
+    }
+
+    .password-match.invalid {
+        color: #dc2626;
+    }
+
+
+    /* INPUT ERROR */
+
+    .password-error {
+        border-color: #dc2626 !important;
+        box-shadow: 0 0 0 3px rgba(220, 38, 38, .08) !important;
+    }
+
+    .password-success {
+        border-color: #16a34a !important;
+        box-shadow: 0 0 0 3px rgba(22, 163, 74, .08) !important;
+    }
+
+
+    /* BOTÓN DESHABILITADO */
+
+    .btn-primary:disabled {
+        background: #9ca3af;
+        cursor: not-allowed;
+    }
+
+    @media(max-width: 700px) {
+
+        .password-requirements {
+            font-size: 11px;
+        }
+
+    }
 </style>
 
 @endsection
@@ -286,25 +392,25 @@
 
     @if($errors->any())
 
-        <div class="form-errors">
+    <div class="form-errors">
 
-            <strong>
-                No se pudo completar el registro:
-            </strong>
+        <strong>
+            No se pudo completar el registro:
+        </strong>
 
-            <ul>
+        <ul>
 
-                @foreach($errors->all() as $error)
+            @foreach($errors->all() as $error)
 
-                    <li>
-                        {{ $error }}
-                    </li>
+            <li>
+                {{ $error }}
+            </li>
 
-                @endforeach
+            @endforeach
 
-            </ul>
+        </ul>
 
-        </div>
+    </div>
 
     @endif
 
@@ -498,8 +604,7 @@
                             name="username"
                             required
                             maxlength="50"
-                            placeholder="Ej. lgaray"
-                        >
+                            placeholder="Ej. lgaray">
 
                         <span class="form-help">
                             Este será el usuario que utilizará el trabajador para iniciar sesión.
@@ -519,12 +624,47 @@
 
                         </label>
 
-                        <input
-                            type="password"
-                            name="password"
-                            class="form-control"
-                            placeholder="Ingrese una contraseña"
-                            required>
+                        <div class="password-wrapper">
+
+                            <input
+                                type="password"
+                                id="password"
+                                name="password"
+                                class="form-control"
+                                placeholder="Ingrese una contraseña"
+                                minlength="7"
+                                required>
+
+                            <button
+                                type="button"
+                                class="password-toggle"
+                                onclick="togglePassword('password', this)"
+                                aria-label="Mostrar contraseña">
+
+                                👁
+
+                            </button>
+
+                        </div>
+
+
+                        {{-- REQUISITOS --}}
+
+                        <div class="password-requirements">
+
+                            <div
+                                id="lengthRequirement"
+                                class="password-requirement">
+
+                                <span class="requirement-icon">
+                                    ✕
+                                </span>
+
+                                Más de 6 caracteres
+
+                            </div>
+
+                        </div>
 
                     </div>
 
@@ -540,12 +680,35 @@
 
                         </label>
 
-                        <input
-                            type="password"
-                            name="password_confirmation"
-                            class="form-control"
-                            placeholder="Repita la contraseña"
-                            required>
+                        <div class="password-wrapper">
+
+                            <input
+                                type="password"
+                                id="password_confirmation"
+                                name="password_confirmation"
+                                class="form-control"
+                                placeholder="Repita la contraseña"
+                                minlength="7"
+                                required>
+
+                            <button
+                                type="button"
+                                class="password-toggle"
+                                onclick="togglePassword('password_confirmation', this)"
+                                aria-label="Mostrar contraseña">
+
+                                👁
+
+                            </button>
+
+                        </div>
+
+
+                        <div
+                            id="passwordMatch"
+                            class="password-match">
+
+                        </div>
 
                     </div>
 
@@ -595,15 +758,15 @@
 
                             @foreach($locales as $local)
 
-                                <option
-                                    value="{{ $local->id }}"
-                                    {{ old('local_id') == $local->id
+                            <option
+                                value="{{ $local->id }}"
+                                {{ old('local_id') == $local->id
                                         ? 'selected'
                                         : '' }}>
 
-                                    {{ $local->nombre }}
+                                {{ $local->nombre }}
 
-                                </option>
+                            </option>
 
                             @endforeach
 
@@ -664,5 +827,186 @@
     </div>
 
 </div>
+
+@endsection
+@section('scripts')
+
+<script>
+
+document.addEventListener('DOMContentLoaded', function () {
+
+    const password = document.getElementById('password');
+    const confirmation = document.getElementById('password_confirmation');
+
+    const lengthRequirement =
+        document.getElementById('lengthRequirement');
+
+    const passwordMatch =
+        document.getElementById('passwordMatch');
+
+
+    function validatePassword() {
+
+        const value = password.value;
+
+        if (value.length >= 7) {
+
+            lengthRequirement.classList.remove('invalid');
+            lengthRequirement.classList.add('valid');
+
+            lengthRequirement.querySelector('.requirement-icon')
+                .textContent = '✓';
+
+            password.classList.remove('password-error');
+
+            password.classList.add('password-success');
+
+        } else {
+
+            lengthRequirement.classList.remove('valid');
+            lengthRequirement.classList.add('invalid');
+
+            lengthRequirement.querySelector('.requirement-icon')
+                .textContent = '✕';
+
+            password.classList.remove('password-success');
+
+            if (value.length > 0) {
+                password.classList.add('password-error');
+            } else {
+                password.classList.remove('password-error');
+            }
+
+        }
+
+        validateConfirmation();
+
+    }
+
+
+    function validateConfirmation() {
+
+        const pass = password.value;
+        const confirm = confirmation.value;
+
+        if (confirm === '') {
+
+            passwordMatch.textContent = '';
+
+            confirmation.classList.remove(
+                'password-success',
+                'password-error'
+            );
+
+            return;
+        }
+
+
+        if (pass === confirm && pass.length >= 7) {
+
+            passwordMatch.textContent =
+                '✓ Las contraseñas coinciden.';
+
+            passwordMatch.classList.remove('invalid');
+            passwordMatch.classList.add('valid');
+
+            confirmation.classList.remove('password-error');
+            confirmation.classList.add('password-success');
+
+        } else {
+
+            passwordMatch.textContent =
+                '✕ Las contraseñas no coinciden.';
+
+            passwordMatch.classList.remove('valid');
+            passwordMatch.classList.add('invalid');
+
+            confirmation.classList.remove('password-success');
+            confirmation.classList.add('password-error');
+
+        }
+
+    }
+
+
+    password.addEventListener('input', validatePassword);
+
+    confirmation.addEventListener(
+        'input',
+        validateConfirmation
+    );
+
+
+    /* VALIDACIÓN AL ENVIAR */
+
+    document.querySelector('form').addEventListener('submit', function (event) {
+
+        const pass = password.value;
+        const confirm = confirmation.value;
+
+
+        if (pass.length < 7) {
+
+            event.preventDefault();
+
+            alert('La contraseña debe tener más de 6 caracteres.');
+
+            password.focus();
+
+            return;
+
+        }
+
+
+        if (pass !== confirm) {
+
+            event.preventDefault();
+
+            alert('Las contraseñas no coinciden.');
+
+            confirmation.focus();
+
+            return;
+
+        }
+
+    });
+
+});
+
+
+/* MOSTRAR / OCULTAR PASSWORD */
+
+function togglePassword(inputId, button) {
+
+    const input = document.getElementById(inputId);
+
+    if (input.type === 'password') {
+
+        input.type = 'text';
+
+        button.textContent = '🙈';
+
+        button.setAttribute(
+            'aria-label',
+            'Ocultar contraseña'
+        );
+
+    } else {
+
+        input.type = 'password';
+
+        button.textContent = '👁';
+
+        button.setAttribute(
+            'aria-label',
+            'Mostrar contraseña'
+        );
+
+    }
+
+}
+
+</script>
 
 @endsection

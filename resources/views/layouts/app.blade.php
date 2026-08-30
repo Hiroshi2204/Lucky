@@ -10,10 +10,11 @@ use App\Helpers\LocalHelper;
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-
+    
     <title>
         @yield('title', 'Macrotechos Inventario')
     </title>
+    <link rel="icon" type="image/png" href="{{ asset('img/favicon.png') }}">
 
     @yield('head')
 
@@ -546,9 +547,6 @@ use App\Helpers\LocalHelper;
             <a
                 href="{{ route('dashboard') }}"
                 class="nav-brand">
-
-                📦
-
                 <span>
                     Macrotechos Lopez S.A.C
                 </span>
@@ -560,7 +558,7 @@ use App\Helpers\LocalHelper;
                 <a
                     href="{{ route('dashboard') }}"
                     class="nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}">
-                    🏠 Dashboard
+                    🏠 Inicio
                 </a>
 
                 <a
