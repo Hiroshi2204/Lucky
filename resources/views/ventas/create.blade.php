@@ -1495,49 +1495,35 @@
         let subtotal = 0;
 
         productosVenta.forEach(function(item) {
+            const cantidad = Number(item.cantidad) || 0;
+            const precio = Number(item.precio_unitario) || 0;
 
-                subtotal +=
-                    Number(item.cantidad || 0) *
-                    Number(item.precio_unitario || 0);
-
-            const precio =
-                Number(item.precio_unitario) || 0;
-
-            const subtotal =
-                Math.round(
-                    (cantidad * precio + Number.EPSILON) * 100
-                ) / 100;
-
-            total += subtotal;
+            subtotal += cantidad * precio;
         });
 
-        // Redondear total final a 2 decimales
-        total =
+        // Redondear subtotal a 2 decimales
+        subtotal =
             Math.round(
-                (total + Number.EPSILON) * 100
+                (subtotal + Number.EPSILON) * 100
             ) / 100;
 
         let descuentoValor =
             Number(descuento.value) || 0;
 
-
         if (descuentoValor < 0) {
             descuentoValor = 0;
         }
-
 
         // El descuento nunca puede superar el subtotal
         if (descuentoValor > subtotal) {
             descuentoValor = subtotal;
         }
 
-
         const total =
             Math.max(
                 subtotal - descuentoValor,
                 0
             );
-
 
         const pagado =
             Math.round(
@@ -1562,12 +1548,10 @@
             ).textContent =
             `S/ ${dinero(subtotal)}`;
 
-
         document.getElementById(
                 'descuentoVenta'
             ).textContent =
             `S/ ${dinero(descuentoValor)}`;
-
 
         document.getElementById(
                 'totalVenta'
@@ -1589,6 +1573,7 @@
             ).textContent =
             `S/ ${dinero(saldo)}`;
     }
+
 
     medioPago.addEventListener(
         'change',
@@ -1722,25 +1707,17 @@
 
         let subtotal = 0;
 
-            const subtotal =
-                Math.round(
-                    (
-                        Number(item.cantidad) *
-                        Number(item.precio_unitario) +
-                        Number.EPSILON
-                    ) * 100
-                ) / 100;
+        productosVenta.forEach(function(item) {
+            subtotal +=
+                Number(item.cantidad || 0) *
+                Number(item.precio_unitario || 0);
+        });
 
-                subtotal +=
-                    Number(item.cantidad) *
-                    Number(item.precio_unitario);
-
-        // El total de una venta se maneja con 2 decimales
-        total =
+        // El subtotal de una venta se maneja con 2 decimales
+        subtotal =
             Math.round(
-                (total + Number.EPSILON) * 100
+                (subtotal + Number.EPSILON) * 100
             ) / 100;
-
 
         const descuentoValor =
             Number(descuento.value) || 0;
