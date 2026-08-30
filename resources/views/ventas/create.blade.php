@@ -1207,8 +1207,13 @@
             function(item, index) {
 
                 const subtotal =
-                    item.cantidad *
-                    item.precio_unitario;
+                    Math.round(
+                        (
+                            Number(item.cantidad) *
+                            Number(item.precio_unitario) +
+                            Number.EPSILON
+                        ) * 100
+                    ) / 100;
 
 
                 const tr =
@@ -1349,7 +1354,9 @@
                             Number(productosVenta[index].precio_unitario) || 0;
 
                         const subtotal =
-                            cantidad * precio;
+                            Math.round(
+                                (cantidad * precio + Number.EPSILON) * 100
+                            ) / 100;
 
                         const subtotalElemento =
                             fila.querySelector('.subtotal');
@@ -1396,7 +1403,9 @@
                             Number(productosVenta[index].cantidad) || 0;
 
                         const subtotal =
-                            cantidad * precio;
+                            Math.round(
+                                (cantidad * precio + Number.EPSILON) * 100
+                            ) / 100;
 
                         const subtotalElemento =
                             fila.querySelector('.subtotal');
@@ -1485,16 +1494,28 @@
 
         let subtotal = 0;
 
-        productosVenta.forEach(
-            function(item) {
+        productosVenta.forEach(function(item) {
 
                 subtotal +=
                     Number(item.cantidad || 0) *
                     Number(item.precio_unitario || 0);
 
-            }
-        );
+            const precio =
+                Number(item.precio_unitario) || 0;
 
+            const subtotal =
+                Math.round(
+                    (cantidad * precio + Number.EPSILON) * 100
+                ) / 100;
+
+            total += subtotal;
+        });
+
+        // Redondear total final a 2 decimales
+        total =
+            Math.round(
+                (total + Number.EPSILON) * 100
+            ) / 100;
 
         let descuentoValor =
             Number(descuento.value) || 0;
@@ -1519,21 +1540,22 @@
 
 
         const pagado =
-            Number(montoPagado.value) || 0;
-
+            Math.round(
+                ((Number(montoPagado.value) || 0) + Number.EPSILON) * 100
+            ) / 100;
 
         const saldo =
             Math.max(
-                total - pagado,
+                Math.round(
+                    (total - pagado + Number.EPSILON) * 100
+                ) / 100,
                 0
             );
-
 
         document.getElementById(
                 'cantidadProductos'
             ).textContent =
             productosVenta.length;
-
 
         document.getElementById(
                 'subtotalVenta'
@@ -1552,18 +1574,15 @@
             ).textContent =
             `S/ ${dinero(total)}`;
 
-
         document.getElementById(
                 'totalFinal'
             ).textContent =
             `S/ ${dinero(total)}`;
 
-
         document.getElementById(
                 'resumenPagado'
             ).textContent =
             `S/ ${dinero(pagado)}`;
-
 
         document.getElementById(
                 'saldoPendiente'
@@ -1703,15 +1722,24 @@
 
         let subtotal = 0;
 
-        productosVenta.forEach(
-            function(item) {
+            const subtotal =
+                Math.round(
+                    (
+                        Number(item.cantidad) *
+                        Number(item.precio_unitario) +
+                        Number.EPSILON
+                    ) * 100
+                ) / 100;
 
                 subtotal +=
                     Number(item.cantidad) *
                     Number(item.precio_unitario);
 
-            }
-        );
+        // El total de una venta se maneja con 2 decimales
+        total =
+            Math.round(
+                (total + Number.EPSILON) * 100
+            ) / 100;
 
 
         const descuentoValor =
@@ -1745,7 +1773,9 @@
             );
 
         const pagado =
-            Number(montoPagado.value) || 0;
+            Math.round(
+                ((Number(montoPagado.value) || 0) + Number.EPSILON) * 100
+            ) / 100;
 
 
         if (pagado < 0) {

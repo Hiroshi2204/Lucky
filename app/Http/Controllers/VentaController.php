@@ -153,12 +153,16 @@ class VentaController extends Controller
             ], 422);
         }
 
-
         try {
 
             $localId = LocalHelper::id();
 
             $venta = DB::transaction(function () use ($validated, $localId) {
+
+                $montoPagado = round(
+                    (float) $validated['monto_pagado'],
+                    2
+                );
 
                 $total = 0;
 
@@ -172,12 +176,11 @@ class VentaController extends Controller
                         ->first();
 
                     if (!$producto) {
+
                         throw new \Exception(
                             'El producto seleccionado no pertenece al local actual.'
                         );
                     }
-
-
 
                     if (!$producto->estado) {
 
@@ -186,12 +189,11 @@ class VentaController extends Controller
                         );
                     }
 
+                    $stock = (float) $producto->stock_actual;
 
+                    $cantidad = (float) $detalle['cantidad'];
 
-                    $stock = $producto->stock_actual;
-
-
-                    if ($detalle['cantidad'] > $stock) {
+                    if ($cantidad > $stock) {
 
                         throw new \Exception(
                             "Stock insuficiente para " .
@@ -201,28 +203,30 @@ class VentaController extends Controller
                         );
                     }
 
+                    $precioUnitario = round(
+                        (float) $detalle['precio_unitario'],
+                        2
+                    );
 
-                    $precioTotal =
-                        $detalle['cantidad'] *
-                        $detalle['precio_unitario'];
-
-
+                    $precioTotal = round(
+                        $cantidad * $precioUnitario,
+                        2
+                    );
                     $total += $precioTotal;
-
 
                     $productos[] = [
 
-                        'producto' => $producto,
+                        'producto' =>
+                        $producto,
 
                         'cantidad' =>
-                        $detalle['cantidad'],
+                        $cantidad,
 
                         'precio_unitario' =>
-                        $detalle['precio_unitario'],
+                        $precioUnitario,
 
                         'precio_total' =>
                         $precioTotal,
-
                     ];
                 }
 
@@ -247,15 +251,48 @@ class VentaController extends Controller
                     );
                 }
 
+                $saldoPendiente = round(
+                    $total - $montoPagado,
+                    2
+                );
 
-                $saldoPendiente =
-                    $total -
-                    $validated['monto_pagado'];
+                if (
+                    $validated['estado_pago'] === 'CANCELADO' &&
+                    $montoPagado != $total
+                ) {
 
+                    throw new \Exception(
+                        'Una venta cancelada debe tener el monto total pagado.'
+                    );
+                }
+
+                if (
+                    $validated['estado_pago'] === 'PENDIENTE' &&
+                    $montoPagado != 0
+                ) {
+
+                    throw new \Exception(
+                        'Una venta pendiente debe tener monto pagado igual a cero.'
+                    );
+                }
+
+                if (
+                    $validated['estado_pago'] === 'PARCIAL' &&
+                    (
+                        $montoPagado <= 0 ||
+                        $montoPagado >= $total
+                    )
+                ) {
+
+                    throw new \Exception(
+                        'Una venta parcial debe tener un pago mayor que cero y menor que el total.'
+                    );
+                }
 
                 $venta = Venta::create([
 
-                    'local_id' => $localId,
+                    'local_id' =>
+                    $localId,
 
                     'user_id' => auth()->id(),
 
@@ -280,7 +317,7 @@ class VentaController extends Controller
                     $validated['estado_pago'],
 
                     'monto_pagado' =>
-                    $validated['monto_pagado'],
+                    $montoPagado,
 
                     'saldo_pendiente' =>
                     $saldoPendiente,
@@ -299,7 +336,6 @@ class VentaController extends Controller
                     $venta->toArray()
                 );
 
-
                 foreach ($productos as $item) {
 
                     $venta->detalles()->create([
@@ -317,7 +353,6 @@ class VentaController extends Controller
                         $item['precio_total'],
 
                     ]);
-
 
                     Movimiento::create([
 
@@ -344,13 +379,12 @@ class VentaController extends Controller
                     ]);
                 }
 
-
-                if ($validated['monto_pagado'] > 0) {
+                if ($montoPagado > 0) {
 
                     $venta->pagos()->create([
 
                         'monto' =>
-                        $validated['monto_pagado'],
+                        $montoPagado,
 
                         'medio_pago' =>
                         $validated['medio_pago'],
@@ -367,14 +401,13 @@ class VentaController extends Controller
                     ]);
                 }
 
-
                 return $venta;
             });
 
-
             return response()->json([
 
-                'success' => true,
+                'success' =>
+                true,
 
                 'message' =>
                 'Venta registrada correctamente.',
@@ -387,7 +420,8 @@ class VentaController extends Controller
 
             return response()->json([
 
-                'success' => false,
+                'success' =>
+                false,
 
                 'message' =>
                 'No se pudo registrar la venta.',
