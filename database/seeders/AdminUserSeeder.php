@@ -17,9 +17,25 @@ class AdminUserSeeder extends Seeder
         |--------------------------------------------------------------------------
         */
 
-        $persona = Persona::updateOrCreate(
+        $persona1 = Persona::updateOrCreate(
             [
                 'numero_documento' => '00000000',
+            ],
+            [
+                'nombres' => 'Super Administrador',
+                'apellido_paterno' => 'Sistema',
+                'apellido_materno' => null,
+                'celular' => null,
+                'correo' => null,
+                'tipo_documento_id' => null,
+                'distrito_id' => null,
+                'direccion' => null,
+            ]
+        );
+
+        $persona2 = Persona::updateOrCreate(
+            [
+                'numero_documento' => '11111111',
             ],
             [
                 'nombres' => 'Administrador',
@@ -43,12 +59,25 @@ class AdminUserSeeder extends Seeder
         |
         */
 
-        $usuario = User::updateOrCreate(
+        $usuario1 = User::updateOrCreate(
             [
                 'username' => 'admin',
             ],
             [
-                'persona_id' => $persona->id,
+                'persona_id' => $persona1->id,
+                'rol_id' => 1,
+                'estado_registro' => 1,
+                'password' => 'admin123',
+                'must_change_password' => true,
+            ]
+        );
+
+        $usuario2 = User::updateOrCreate(
+            [
+                'username' => 'admin2',
+            ],
+            [
+                'persona_id' => $persona2->id,
                 'rol_id' => 1,
                 'estado_registro' => 1,
                 'password' => 'admin123',
@@ -67,7 +96,13 @@ class AdminUserSeeder extends Seeder
 
         foreach ($locales as $localId) {
 
-            $usuario->locales()->syncWithoutDetaching([
+            $usuario1->locales()->syncWithoutDetaching([
+                $localId => [
+                    'estado' => true,
+                ]
+            ]);
+
+            $usuario2->locales()->syncWithoutDetaching([
                 $localId => [
                     'estado' => true,
                 ]
