@@ -141,17 +141,15 @@ class VentaController extends Controller
 
         ]);
 
-        $productoIds = collect($validated['detalles'])
-            ->pluck('producto_id');
-
-        if ($productoIds->duplicates()->isNotEmpty()) {
-
-            return response()->json([
-                'success' => false,
-                'message' =>
-                'No se puede repetir un producto dentro de la misma venta.'
-            ], 422);
-        }
+        /*
+         |--------------------------------------------------------------------------
+         | PRODUCTOS REPETIDOS
+         |--------------------------------------------------------------------------
+         |
+         | Se permite el mismo producto varias veces dentro de una venta.
+         | Cada detalle puede tener una cantidad y precio diferente.
+         |
+         */
 
         try {
 
@@ -168,9 +166,37 @@ class VentaController extends Controller
 
                 $productos = [];
 
+                /*
+                 |--------------------------------------------------------------------------
+                 | ACUMULAR CANTIDADES POR PRODUCTO
+                 |--------------------------------------------------------------------------
+                 */
+
+                $cantidadesPorProducto = [];
+
                 foreach ($validated['detalles'] as $detalle) {
 
-                    $producto = Producto::where('id', $detalle['producto_id'])
+                    $productoId = (int) $detalle['producto_id'];
+                    $cantidad = (float) $detalle['cantidad'];
+
+                    if (!isset($cantidadesPorProducto[$productoId])) {
+                        $cantidadesPorProducto[$productoId] = 0;
+                    }
+
+                    $cantidadesPorProducto[$productoId] += $cantidad;
+                }
+
+                /*
+                 |--------------------------------------------------------------------------
+                 | VALIDAR STOCK UNA SOLA VEZ POR PRODUCTO
+                 |--------------------------------------------------------------------------
+                 */
+
+                $productosBloqueados = [];
+
+                foreach ($cantidadesPorProducto as $productoId => $cantidadTotal) {
+
+                    $producto = Producto::where('id', $productoId)
                         ->where('local_id', $localId)
                         ->lockForUpdate()
                         ->first();
@@ -191,17 +217,33 @@ class VentaController extends Controller
 
                     $stock = (float) $producto->stock_actual;
 
-                    $cantidad = (float) $detalle['cantidad'];
-
-                    if ($cantidad > $stock) {
+                    if ($cantidadTotal > $stock) {
 
                         throw new \Exception(
                             "Stock insuficiente para " .
                                 $producto->codigo .
+                                ". Cantidad solicitada: " .
+                                number_format($cantidadTotal, 3) .
                                 ". Stock disponible: " .
                                 number_format($stock, 3)
                         );
                     }
+
+                    $productosBloqueados[$productoId] = $producto;
+                }
+
+                /*
+                 |--------------------------------------------------------------------------
+                 | PROCESAR CADA DETALLE CONSERVANDO SU PRECIO
+                 |--------------------------------------------------------------------------
+                 */
+
+                foreach ($validated['detalles'] as $detalle) {
+
+                    $productoId = (int) $detalle['producto_id'];
+                    $cantidad = (float) $detalle['cantidad'];
+
+                    $producto = $productosBloqueados[$productoId];
 
                     $precioUnitario = round(
                         (float) $detalle['precio_unitario'],
@@ -212,6 +254,7 @@ class VentaController extends Controller
                         $cantidad * $precioUnitario,
                         2
                     );
+
                     $total += $precioTotal;
 
                     $productos[] = [

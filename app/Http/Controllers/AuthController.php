@@ -8,21 +8,22 @@ use Illuminate\Support\Facades\Auth;
 
 class AuthController extends Controller
 {
-    /**
-     * Mostrar login
-     */
     public function login()
     {
         if (Auth::check()) {
+            /** @var \App\User $user */
+            $user = Auth::user();
+
+            if ($user->mustChangePassword) {
+                return redirect()->route('password.change');
+            }
+
             return redirect()->route('dashboard');
         }
 
         return view('login');
     }
 
-    /**
-     * Autenticar usuario
-     */
     public function authenticate(Request $request)
     {
         $request->validate([
@@ -40,35 +41,47 @@ class AuthController extends Controller
         ];
 
         if (!Auth::attempt($credentials)) {
-
             return back()
                 ->withErrors([
                     'username' => 'Usuario o contraseña incorrectos.',
                 ])
-                ->withInput(
-                    $request->only('username')
-                );
+                ->withInput($request->only('username'));
         }
-
-        /*
-        |--------------------------------------------------------------------------
-        | Regenerar sesión
-        |--------------------------------------------------------------------------
-        */
 
         $request->session()->regenerate();
 
         /** @var \App\User $user */
         $user = Auth::user();
 
+        if ($user->mustChangePassword) {
+            return redirect()
+                ->route('password.change')
+                ->with(
+                    'warning',
+                    'Por seguridad, debe cambiar su contraseña antes de continuar.'
+                );
+        }
+
+        return $this->continuarDespuesDelLogin($request, $user);
+    }
+
+    /**
+     * Completa el acceso al sistema después del login o del cambio
+     * obligatorio de contraseña.
+     */
+    public function continuarDespuesDelLogin(Request $request, ?User $user = null)
+    {
+        /** @var \App\User $user */
+        $user = $user ?: Auth::user();
+
+        if (!$user) {
+            return redirect()->route('login');
+        }
+
         /*
         |--------------------------------------------------------------------------
         | ADMINISTRADOR
         |--------------------------------------------------------------------------
-        |
-        | El administrador puede tener varios locales.
-        | Por eso NO asignamos automáticamente un local.
-        |
         */
 
         if ($user->rol_id == 1) {
@@ -85,17 +98,12 @@ class AuthController extends Controller
                 $request->session()->invalidate();
                 $request->session()->regenerateToken();
 
-                return back()
+                return redirect()->route('login')
                     ->withErrors([
                         'username' =>
-                            'El administrador no tiene ningún local asignado.'
+                        'El administrador no tiene ningún local asignado.'
                     ]);
             }
-
-            /*
-             * Si solamente tiene un local,
-             * podemos seleccionarlo automáticamente.
-             */
 
             if ($locales->count() === 1) {
 
@@ -109,11 +117,6 @@ class AuthController extends Controller
                 );
             }
 
-            /*
-             * Si tiene varios locales,
-             * debe seleccionar uno.
-             */
-
             return redirect()->route('local.seleccionar');
         }
 
@@ -121,10 +124,6 @@ class AuthController extends Controller
         |--------------------------------------------------------------------------
         | TRABAJADOR
         |--------------------------------------------------------------------------
-        |
-        | El trabajador NO selecciona local.
-        | Se obtiene automáticamente desde usuario_local.
-        |
         */
 
         if ($user->rol_id == 2) {
@@ -141,17 +140,12 @@ class AuthController extends Controller
                 $request->session()->invalidate();
                 $request->session()->regenerateToken();
 
-                return back()
+                return redirect()->route('login')
                     ->withErrors([
                         'username' =>
-                            'El usuario no tiene un local asignado.'
+                        'El usuario no tiene un local asignado.'
                     ]);
             }
-
-            /*
-             * Guardamos automáticamente
-             * el local del trabajador.
-             */
 
             $request->session()->put(
                 'local_id',
@@ -165,7 +159,7 @@ class AuthController extends Controller
 
         /*
         |--------------------------------------------------------------------------
-        | Rol desconocido
+        | ROL DESCONOCIDO
         |--------------------------------------------------------------------------
         */
 
@@ -174,16 +168,13 @@ class AuthController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return back()
+        return redirect()->route('login')
             ->withErrors([
                 'username' =>
-                    'El usuario no tiene un rol válido.'
+                'El usuario no tiene un rol válido.'
             ]);
     }
 
-    /**
-     * Cerrar sesión
-     */
     public function logout(Request $request)
     {
         Auth::logout();
@@ -191,7 +182,6 @@ class AuthController extends Controller
         $request->session()->forget('local_id');
 
         $request->session()->invalidate();
-
         $request->session()->regenerateToken();
 
         return redirect()
@@ -202,9 +192,6 @@ class AuthController extends Controller
             );
     }
 
-    /**
-     * Usuario autenticado
-     */
     public function my()
     {
         $user = User::with([

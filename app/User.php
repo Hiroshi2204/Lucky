@@ -26,6 +26,7 @@ class User extends Authenticatable implements JWTSubject
         'persona_id',
         'rol_id',
         'estado_registro',
+        'must_change_password',
     ];
 
     protected $hidden = [
@@ -39,13 +40,9 @@ class User extends Authenticatable implements JWTSubject
 
     protected $casts = [
         'email_verified_at' => 'datetime',
+        'estado_registro' => 'boolean',
+        'must_change_password' => 'boolean',
     ];
-
-    /*
-    |--------------------------------------------------------------------------
-    | JWT
-    |--------------------------------------------------------------------------
-    */
 
     public function getJWTIdentifier()
     {
@@ -57,38 +54,15 @@ class User extends Authenticatable implements JWTSubject
         return [];
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | Persona
-    |--------------------------------------------------------------------------
-    */
-
     public function persona()
     {
-        return $this->belongsTo(
-            Persona::class
-        );
+        return $this->belongsTo(Persona::class);
     }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Rol
-    |--------------------------------------------------------------------------
-    */
 
     public function rol()
     {
-        return $this->belongsTo(
-            Rol::class,
-            'rol_id'
-        );
+        return $this->belongsTo(Rol::class, 'rol_id');
     }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Locales
-    |--------------------------------------------------------------------------
-    */
 
     public function locales()
     {
@@ -102,53 +76,20 @@ class User extends Authenticatable implements JWTSubject
             ->withTimestamps();
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | Movimientos
-    |--------------------------------------------------------------------------
-    */
-
     public function movimientos()
     {
-        return $this->hasMany(
-            Movimiento::class,
-            'user_id'
-        );
+        return $this->hasMany(Movimiento::class, 'user_id');
     }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Ventas
-    |--------------------------------------------------------------------------
-    */
 
     public function ventas()
     {
-        return $this->hasMany(
-            Venta::class,
-            'user_id'
-        );
+        return $this->hasMany(Venta::class, 'user_id');
     }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Pagos
-    |--------------------------------------------------------------------------
-    */
 
     public function pagos()
     {
-        return $this->hasMany(
-            Pago::class,
-            'user_id'
-        );
+        return $this->hasMany(Pago::class, 'user_id');
     }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Password
-    |--------------------------------------------------------------------------
-    */
 
     public function setPasswordAttribute($value)
     {

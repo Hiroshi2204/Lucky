@@ -35,8 +35,12 @@ class AdminUserSeeder extends Seeder
 
         /*
         |--------------------------------------------------------------------------
-        | Usuario
+        | Usuario administrador
         |--------------------------------------------------------------------------
+        |
+        | admin123 continúa siendo la contraseña inicial.
+        | must_change_password = true obliga a cambiarla al primer ingreso.
+        |
         */
 
         $usuario = User::updateOrCreate(
@@ -48,6 +52,7 @@ class AdminUserSeeder extends Seeder
                 'rol_id' => 1,
                 'estado_registro' => 1,
                 'password' => 'admin123',
+                'must_change_password' => true,
             ]
         );
 
@@ -60,12 +65,6 @@ class AdminUserSeeder extends Seeder
         $locales = Local::where('estado', true)
             ->pluck('id');
 
-        /*
-        |--------------------------------------------------------------------------
-        | Asignar administrador a todos los locales
-        |--------------------------------------------------------------------------
-        */
-
         foreach ($locales as $localId) {
 
             $usuario->locales()->syncWithoutDetaching([
@@ -73,7 +72,6 @@ class AdminUserSeeder extends Seeder
                     'estado' => true,
                 ]
             ]);
-
         }
     }
 }

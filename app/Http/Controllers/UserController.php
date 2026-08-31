@@ -11,9 +11,6 @@ use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
-    /**
-     * LISTAR USUARIOS
-     */
     public function index(Request $request)
     {
         $usuarios = User::with([
@@ -35,10 +32,6 @@ class UserController extends Controller
         return view('usuarios.index', compact('usuarios'));
     }
 
-
-    /**
-     * FORMULARIO CREAR TRABAJADOR
-     */
     public function create()
     {
         $locales = Local::where('estado', true)
@@ -51,118 +44,81 @@ class UserController extends Controller
         );
     }
 
-
-    /**
-     * CREAR TRABAJADOR
-     */
     public function store(Request $request)
     {
         $validated = $request->validate([
-
             'numero_documento' => [
                 'required',
                 'string',
                 'max:20'
             ],
-
             'nombres' => [
                 'required',
                 'string',
                 'max:100'
             ],
-
             'apellido_paterno' => [
                 'required',
                 'string',
                 'max:100'
             ],
-
             'apellido_materno' => [
                 'nullable',
                 'string',
                 'max:100'
             ],
-
             'celular' => [
                 'nullable',
                 'string',
                 'max:20'
             ],
-
             'correo' => [
                 'nullable',
                 'email',
                 'max:150'
             ],
-
-            /*
-        |--------------------------------------------------------------------------
-        | USERNAME
-        |--------------------------------------------------------------------------
-        */
-
             'username' => [
                 'required',
                 'string',
                 'max:50',
                 'unique:users,username'
             ],
-
             'password' => [
                 'required',
                 'string',
                 'min:6',
                 'confirmed'
             ],
-
             'local_id' => [
                 'required',
                 'exists:locales,id'
             ],
-
         ], [
-
             'numero_documento.required' =>
             'El número de documento es obligatorio.',
-
             'nombres.required' =>
             'Los nombres son obligatorios.',
-
             'apellido_paterno.required' =>
             'El apellido paterno es obligatorio.',
-
             'username.required' =>
             'El nombre de usuario es obligatorio.',
-
             'username.unique' =>
             'El nombre de usuario ya está registrado.',
-
             'password.required' =>
             'La contraseña es obligatoria.',
-
             'password.min' =>
             'La contraseña debe tener mínimo 6 caracteres.',
-
             'password.confirmed' =>
             'Las contraseñas no coinciden.',
-
             'local_id.required' =>
             'Debe seleccionar un local.',
-
             'local_id.exists' =>
             'El local seleccionado no existe.',
         ]);
 
-
         try {
 
             $resultado = DB::transaction(function () use ($validated) {
-
-                /*
-            |--------------------------------------------------------------------------
-            | BUSCAR PERSONA
-            |--------------------------------------------------------------------------
-            */
 
                 $persona = Persona::where(
                     'numero_documento',
@@ -171,44 +127,24 @@ class UserController extends Controller
                     ->lockForUpdate()
                     ->first();
 
-
-                /*
-            |--------------------------------------------------------------------------
-            | CREAR PERSONA
-            |--------------------------------------------------------------------------
-            */
-
                 if (!$persona) {
 
                     $persona = Persona::create([
-
                         'tipo_documento_id' => 1,
-
                         'numero_documento' =>
                         $validated['numero_documento'],
-
                         'nombres' =>
                         $validated['nombres'],
-
                         'apellido_paterno' =>
                         $validated['apellido_paterno'],
-
                         'apellido_materno' =>
                         $validated['apellido_materno'] ?? null,
-
                         'celular' =>
                         $validated['celular'] ?? null,
-
                         'correo' =>
                         $validated['correo'] ?? null,
                     ]);
                 } else {
-
-                    /*
-                |--------------------------------------------------------------------------
-                | VERIFICAR SI YA TIENE USUARIO
-                |--------------------------------------------------------------------------
-                */
 
                     if ($persona->user) {
 
@@ -217,13 +153,6 @@ class UserController extends Controller
                         );
                     }
                 }
-
-
-                /*
-            |--------------------------------------------------------------------------
-            | OBTENER ROL TRABAJADOR
-            |--------------------------------------------------------------------------
-            */
 
                 $rolTrabajador = \App\Models\Rol::where(
                     'nombre',
@@ -237,15 +166,13 @@ class UserController extends Controller
                     );
                 }
 
-
                 /*
-            |--------------------------------------------------------------------------
-            | CREAR USUARIO
-            |--------------------------------------------------------------------------
-            */
+                |--------------------------------------------------------------------------
+                | CREAR USUARIO CON CONTRASEÑA TEMPORAL
+                |--------------------------------------------------------------------------
+                */
 
                 $usuario = User::create([
-
                     'persona_id' =>
                     $persona->id,
 
@@ -260,14 +187,10 @@ class UserController extends Controller
 
                     'estado_registro' =>
                     true,
+
+                    'must_change_password' =>
+                    true,
                 ]);
-
-
-                /*
-            |--------------------------------------------------------------------------
-            | ASIGNAR LOCAL
-            |--------------------------------------------------------------------------
-            */
 
                 $usuario->locales()->attach(
                     $validated['local_id'],
@@ -276,66 +199,42 @@ class UserController extends Controller
                     ]
                 );
 
-
                 return $usuario;
             });
-
-
-            /*
-        |--------------------------------------------------------------------------
-        | API
-        |--------------------------------------------------------------------------
-        */
 
             if ($request->expectsJson()) {
 
                 return response()->json([
-
                     'success' => true,
-
                     'message' =>
-                    'Trabajador creado y local asignado correctamente.',
-
+                    'Trabajador creado y local asignado correctamente. La contraseña entregada es temporal y deberá cambiarla al ingresar.',
                     'data' =>
                     $resultado->load([
                         'persona',
                         'rol',
                         'locales'
                     ])
-
                 ], 201);
             }
-
-
-            /*
-        |--------------------------------------------------------------------------
-        | BLADE
-        |--------------------------------------------------------------------------
-        */
 
             return redirect()
                 ->route('usuarios.index')
                 ->with(
                     'success',
-                    'Trabajador creado y local asignado correctamente.'
+                    'Trabajador creado y local asignado correctamente. La contraseña entregada es temporal y deberá cambiarla al ingresar.'
                 );
         } catch (\Throwable $e) {
 
             if ($request->expectsJson()) {
 
                 return response()->json([
-
                     'success' => false,
-
                     'message' =>
                     'No se pudo crear el trabajador.',
-
                     'error' =>
                     $e->getMessage()
-
                 ], 422);
             }
-
 
             return back()
                 ->withInput()
@@ -346,13 +245,8 @@ class UserController extends Controller
         }
     }
 
-
-    /**
-     * FORMULARIO EDITAR USUARIO
-     */
     public function edit(User $usuario)
     {
-
         if ((int) $usuario->rol_id === 1) {
 
             return back()->withErrors([
@@ -367,11 +261,9 @@ class UserController extends Controller
             'locales'
         ]);
 
-
         $locales = Local::where('estado', true)
             ->orderBy('nombre')
             ->get();
-
 
         return view(
             'usuarios.edit',
@@ -382,18 +274,8 @@ class UserController extends Controller
         );
     }
 
-
-    /**
-     * ACTUALIZAR USUARIO
-     */
     public function update(Request $request, User $usuario)
     {
-        /*
-    |--------------------------------------------------------------------------
-    | NO PERMITIR EDITAR ADMINISTRADOR
-    |--------------------------------------------------------------------------
-    */
-
         if ((int) $usuario->rol_id === 1) {
 
             return back()->withErrors([
@@ -402,61 +284,37 @@ class UserController extends Controller
             ]);
         }
 
-
-        /*
-    |--------------------------------------------------------------------------
-    | VALIDACIÓN
-    |--------------------------------------------------------------------------
-    */
-
         $validated = $request->validate([
-
             'username' => [
                 'required',
                 'string',
                 'max:50',
                 'unique:users,username,' . $usuario->id
             ],
-
             'password' => [
                 'nullable',
                 'string',
                 'min:6',
                 'confirmed'
             ],
-
             'local_id' => [
                 'required',
                 'exists:locales,id'
             ],
-
         ], [
-
             'username.required' =>
             'El nombre de usuario es obligatorio.',
-
             'username.unique' =>
             'El nombre de usuario ya está registrado.',
-
             'password.min' =>
             'La contraseña debe tener mínimo 6 caracteres.',
-
             'password.confirmed' =>
             'Las contraseñas no coinciden.',
-
             'local_id.required' =>
             'Debe seleccionar un local.',
-
             'local_id.exists' =>
             'El local seleccionado no existe.',
         ]);
-
-
-        /*
-    |--------------------------------------------------------------------------
-    | ACTUALIZAR USUARIO Y LOCAL
-    |--------------------------------------------------------------------------
-    */
 
         try {
 
@@ -465,96 +323,59 @@ class UserController extends Controller
                 $usuario
             ) {
 
-                /*
-            |--------------------------------------------------------------------------
-            | DATOS DEL USUARIO
-            |--------------------------------------------------------------------------
-            */
-
                 $datos = [
-
                     'username' =>
                     $validated['username'],
-
                 ];
 
-
                 /*
-            |--------------------------------------------------------------------------
-            | CAMBIAR CONTRASEÑA
-            |--------------------------------------------------------------------------
-            */
+                |--------------------------------------------------------------------------
+                | RESET DE CONTRASEÑA POR ADMINISTRADOR
+                |--------------------------------------------------------------------------
+                |
+                | Si el administrador establece una nueva contraseña,
+                | esa contraseña vuelve a ser temporal.
+                |
+                */
 
                 if (!empty($validated['password'])) {
 
-                    $datos['password'] =
-                        Hash::make(
-                            $validated['password']
-                        );
+                    $datos['password'] =  $validated['password'];
+
+                    $datos['must_change_password'] =
+                        true;
                 }
-
-
-                /*
-            |--------------------------------------------------------------------------
-            | ACTUALIZAR USUARIO
-            |--------------------------------------------------------------------------
-            */
 
                 $usuario->update($datos);
 
-
-                /*
-            |--------------------------------------------------------------------------
-            | CAMBIAR LOCAL
-            |--------------------------------------------------------------------------
-            |
-            | detach() elimina la relación anterior.
-            | attach() asigna el nuevo local.
-            |
-            */
-
                 $usuario->locales()->sync([
-
                     $validated['local_id'] => [
-
                         'estado' => true
-
                     ]
-
                 ]);
             });
-
 
             return redirect()
                 ->route('usuarios.index')
                 ->with(
                     'success',
-                    'Usuario, contraseña y local actualizados correctamente.'
+                    !empty($validated['password'])
+                        ? 'Usuario, contraseña temporal y local actualizados correctamente. El trabajador deberá cambiar la contraseña al ingresar.'
+                        : 'Usuario y local actualizados correctamente.'
                 );
         } catch (\Throwable $e) {
 
             return back()
                 ->withInput()
                 ->withErrors([
-
                     'usuario' =>
                     'No se pudo actualizar el usuario.'
-
                 ]);
         }
     }
 
-    /**
-     * ACTIVAR / DESACTIVAR USUARIO
-     */
     public function cambiarEstado(User $usuario)
     {
-        /*
-        |--------------------------------------------------------------------------
-        | NO PERMITIR DESACTIVAR ADMINISTRADOR
-        |--------------------------------------------------------------------------
-        */
-
         if ((int) $usuario->rol_id === 1) {
 
             return back()->withErrors([
@@ -563,14 +384,10 @@ class UserController extends Controller
             ]);
         }
 
-
         $usuario->update([
-
             'estado_registro' =>
             !$usuario->estado_registro
-
         ]);
-
 
         return back()->with(
             'success',

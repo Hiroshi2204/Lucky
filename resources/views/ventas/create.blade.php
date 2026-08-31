@@ -1102,49 +1102,13 @@
 
         /*
         |--------------------------------------------------------------------------
-        | EVITAR PRODUCTO REPETIDO
+        | PERMITIR PRODUCTO REPETIDO
         |--------------------------------------------------------------------------
+        |
+        | El mismo producto puede agregarse varias veces a una venta.
+        | Cada línea conserva su propia cantidad y precio unitario.
+        |
         */
-
-        const existe =
-            productosVenta.some(
-                item =>
-                item.producto_id === producto.id
-            );
-
-
-        if (existe) {
-
-            mostrarError(
-                `El producto ${producto.codigo} ya está agregado a la venta.`
-            );
-
-            buscarProducto.value = '';
-
-            sugerencias.style.display =
-                'none';
-
-            return;
-        }
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | STOCK CERO
-        |--------------------------------------------------------------------------
-        */
-
-        if (
-            Number(producto.stock_actual) <= 0
-        ) {
-
-            mostrarError(
-                `El producto ${producto.codigo} no tiene stock disponible.`
-            );
-
-            return;
-        }
-
 
         productosVenta.push({
 
@@ -1345,7 +1309,15 @@
 
                         productosVenta[index].cantidad = cantidad;
 
-                        validarCantidad(index);
+                        // El stock se comparte entre todas las líneas del mismo producto.
+                        productosVenta.forEach(function(producto, productoIndex) {
+                            if (
+                                producto.producto_id ===
+                                productosVenta[index].producto_id
+                            ) {
+                                validarCantidad(productoIndex);
+                            }
+                        });
 
                         // ACTUALIZAR SUBTOTAL DE LA FILA
                         const fila = this.closest('tr');
@@ -1464,9 +1436,26 @@
                 `error-cantidad-${index}`
             );
 
+        /*
+        |--------------------------------------------------------------------------
+        | STOCK ACUMULADO DEL MISMO PRODUCTO
+        |--------------------------------------------------------------------------
+        */
+
+        const cantidadTotalProducto =
+            productosVenta
+            .filter(
+                producto =>
+                producto.producto_id === item.producto_id
+            )
+            .reduce(
+                (total, producto) =>
+                total + (Number(producto.cantidad) || 0),
+                0
+            );
 
         if (
-            item.cantidad >
+            cantidadTotalProducto >
             item.stock
         ) {
 
@@ -1475,11 +1464,10 @@
             );
 
             error.textContent =
-                `Máximo disponible: ${item.stock.toFixed(3)}`;
+                `Stock insuficiente. Total solicitado: ${cantidadTotalProducto.toFixed(3)}. Máximo disponible: ${item.stock.toFixed(3)}`;
 
             return false;
         }
-
 
         input.classList.remove(
             'cantidad-error'
@@ -1659,13 +1647,18 @@
             return;
         }
 
+        /*
+        |--------------------------------------------------------------------------
+        | VALIDAR CANTIDADES Y PRECIOS
+        |--------------------------------------------------------------------------
+        */
+
         for (
             let i = 0; i < productosVenta.length; i++
         ) {
 
             const item =
                 productosVenta[i];
-
 
             if (
                 item.cantidad <= 0
@@ -1678,20 +1671,6 @@
                 return;
             }
 
-
-            if (
-                item.cantidad >
-                item.stock
-            ) {
-
-                mostrarError(
-                    `Stock insuficiente para ${item.codigo}.`
-                );
-
-                return;
-            }
-
-
             if (
                 item.precio_unitario < 0
             ) {
@@ -1702,7 +1681,48 @@
 
                 return;
             }
+        }
 
+        /*
+        |--------------------------------------------------------------------------
+        | VALIDAR STOCK ACUMULADO POR PRODUCTO
+        |--------------------------------------------------------------------------
+        */
+
+        const cantidadesPorProducto = {};
+
+        productosVenta.forEach(function(item) {
+
+            if (!cantidadesPorProducto[item.producto_id]) {
+                cantidadesPorProducto[item.producto_id] = {
+                    codigo: item.codigo,
+                    cantidad: 0,
+                    stock: Number(item.stock) || 0
+                };
+            }
+
+            cantidadesPorProducto[item.producto_id].cantidad +=
+                Number(item.cantidad) || 0;
+        });
+
+        for (
+            const productoId in cantidadesPorProducto
+        ) {
+
+            const producto =
+                cantidadesPorProducto[productoId];
+
+            if (
+                producto.cantidad >
+                producto.stock
+            ) {
+
+                mostrarError(
+                    `Stock insuficiente para ${producto.codigo}. Total solicitado: ${producto.cantidad.toFixed(3)}. Stock disponible: ${producto.stock.toFixed(3)}.`
+                );
+
+                return;
+            }
         }
 
         let subtotal = 0;
