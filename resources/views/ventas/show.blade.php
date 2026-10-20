@@ -594,7 +594,7 @@
                                 S/
                                 {{ number_format(
                                     $detalle->precio_unitario,
-                                    2
+                                    3
                                 ) }}
                             </td>
 

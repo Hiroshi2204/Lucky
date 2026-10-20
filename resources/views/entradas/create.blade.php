@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Nueva entrada')
+@section('title', 'Nueva entrada - Lucky Inventario')
 
 
 @section('styles')
@@ -591,7 +591,7 @@
             */
 
             const url =
-                "{{ route('api.productos.buscar') }}" +
+                "{{ url('/api/productos/buscar') }}" +
                 "?codigo=" +
                 encodeURIComponent(codigo);
 

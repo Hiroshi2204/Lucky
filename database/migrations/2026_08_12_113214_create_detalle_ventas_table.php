@@ -21,7 +21,7 @@ return new class extends Migration
 
             $table->decimal('cantidad', 12, 3);
 
-            $table->decimal('precio_unitario', 14, 2);
+            $table->decimal('precio_unitario', 14, 3);
 
             $table->decimal('precio_total', 14, 2);
 

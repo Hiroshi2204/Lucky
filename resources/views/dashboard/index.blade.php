@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Inicio')
+@section('title', 'Dashboard - Inventario')
 
 @section('content')
 @section('head')
@@ -179,6 +179,43 @@
     .table-container {
         overflow-x: auto;
     }
+
+    /* Scroll vertical para productos con poco stock */
+    .stock-bajo-scroll {
+        max-height: 350px;
+        overflow-y: auto;
+        overflow-x: auto;
+        scrollbar-width: thin;
+        scrollbar-color: #cbd5e1 #f1f5f9;
+    }
+
+    /* Mantener los encabezados visibles al desplazarse */
+    .stock-bajo-scroll thead th {
+        position: sticky;
+        top: 0;
+        z-index: 2;
+        background: #f9fafb;
+    }
+
+    /* Personalización del scroll en Chrome y Edge */
+    .stock-bajo-scroll::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+    }
+
+    .stock-bajo-scroll::-webkit-scrollbar-track {
+        background: #f1f5f9;
+    }
+
+    .stock-bajo-scroll::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 10px;
+    }
+
+    .stock-bajo-scroll::-webkit-scrollbar-thumb:hover {
+        background: #94a3b8;
+    }
+
 
     table {
         width: 100%;
@@ -570,7 +607,7 @@
                 ⚠ Productos con poco stock
             </h2>
 
-            <div class="table-container">
+            <div class="table-container stock-bajo-scroll">
 
                 <table>
 

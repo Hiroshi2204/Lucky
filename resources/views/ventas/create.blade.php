@@ -1509,7 +1509,7 @@
 
         const total =
             Math.max(
-                subtotal - descuentoValor,
+                Math.round((subtotal - descuentoValor + Number.EPSILON) * 100) / 100,
                 0
             );
 
@@ -1728,16 +1728,24 @@
         let subtotal = 0;
 
         productosVenta.forEach(function(item) {
-            subtotal +=
-                Number(item.cantidad || 0) *
-                Number(item.precio_unitario || 0);
+            const cantidad = Number(item.cantidad) || 0;
+
+            const precioUnitario =
+                Math.round(
+                    (Number(item.precio_unitario) + Number.EPSILON) * 100
+                ) / 100;
+
+            const precioTotal =
+                Math.round(
+                    (cantidad * precioUnitario + Number.EPSILON) * 100
+                ) / 100;
+
+            subtotal += precioTotal;
         });
 
-        // El subtotal de una venta se maneja con 2 decimales
-        subtotal =
-            Math.round(
-                (subtotal + Number.EPSILON) * 100
-            ) / 100;
+        subtotal = Math.round(
+            (subtotal + Number.EPSILON) * 100
+        ) / 100;
 
         const descuentoValor =
             Number(descuento.value) || 0;
@@ -1765,7 +1773,7 @@
 
         const total =
             Math.max(
-                subtotal - descuentoValor,
+                Math.round((subtotal - descuentoValor + Number.EPSILON) * 100) / 100,
                 0
             );
 

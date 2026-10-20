@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Ventas')
+@section('title', 'Productos')
 
 @section('styles')
 
@@ -174,8 +174,95 @@
         color: #166534;
     }
 
+    /* ================================
+   PAGINACIÓN DE PRODUCTOS
+================================ */
+
     .pagination {
-        margin-top: 20px;
+        margin-top: 22px;
+        padding-top: 16px;
+        border-top: 1px solid #e5e7eb;
+        width: 100%;
+        overflow-x: auto;
+        font-size: 13px;
+        color: #4b5563;
+    }
+
+    /* Evitar flechas gigantes */
+    .pagination svg {
+        width: 16px !important;
+        height: 16px !important;
+        max-width: 16px;
+        max-height: 16px;
+        display: inline-block;
+        vertical-align: middle;
+    }
+
+    /* Contenedores internos de Laravel */
+    .pagination nav>div {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+
+    .pagination nav p {
+        margin: 0;
+        font-size: 12px;
+        color: #6b7280;
+    }
+
+    .pagination nav a,
+    .pagination nav span[aria-current="page"] span,
+    .pagination nav span[aria-disabled="true"] span {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 5px;
+        min-width: 34px;
+        min-height: 34px;
+        padding: 7px 11px;
+        border: 1px solid #e5e7eb;
+        background: #fff;
+        color: #374151;
+        text-decoration: none;
+        font-size: 13px;
+        line-height: 1.2;
+    }
+
+    .pagination nav a:hover {
+        background: #eff6ff;
+        color: #2563eb;
+    }
+
+    .pagination nav span[aria-current="page"] span {
+        background: #2563eb;
+        border-color: #2563eb;
+        color: #fff;
+    }
+
+    .pagination nav span[aria-disabled="true"] span {
+        color: #9ca3af;
+        background: #f9fafb;
+    }
+
+    @media (max-width: 600px) {
+        .pagination nav>div {
+            justify-content: center;
+        }
+
+        .pagination nav p {
+            text-align: center;
+        }
+
+        .pagination nav a,
+        .pagination nav span[aria-current="page"] span,
+        .pagination nav span[aria-disabled="true"] span {
+            min-width: 30px;
+            min-height: 30px;
+            padding: 6px 9px;
+        }
     }
 
     @media(max-width:900px) {

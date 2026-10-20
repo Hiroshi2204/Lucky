@@ -2,125 +2,49 @@
 
 namespace App\Exports;
 
+use App\Exports\Sheets\VentasResumenSheet;
+use App\Exports\Sheets\VentasListadoSheet;
+use App\Exports\Sheets\VentasProductosSheet;
+use App\Exports\Sheets\VentasPagosSheet;
 use App\Models\Venta;
-use App\Helpers\LocalHelper;
-use Maatwebsite\Excel\Concerns\FromCollection;
-use Maatwebsite\Excel\Concerns\WithHeadings;
-use Maatwebsite\Excel\Concerns\WithMapping;
-use Maatwebsite\Excel\Concerns\ShouldAutoSize;
+use Maatwebsite\Excel\Concerns\WithMultipleSheets;
 
-class VentasExport implements
-    FromCollection,
-    WithHeadings,
-    WithMapping,
-    ShouldAutoSize
+class VentasExport implements WithMultipleSheets
 {
-    protected $fechaInicio;
-    protected $fechaFin;
-    protected $estado;
-    protected $estadoPago;
-    protected $medioPago;
-
     public function __construct(
-        $fechaInicio = null,
-        $fechaFin = null,
-        $estado = null,
-        $estadoPago = null,
-        $medioPago = null
-    ) {
-        $this->fechaInicio = $fechaInicio;
-        $this->fechaFin = $fechaFin;
-        $this->estado = $estado;
-        $this->estadoPago = $estadoPago;
-        $this->medioPago = $medioPago;
-    }
+        protected $fechaInicio = null,
+        protected $fechaFin = null,
+        protected $estado = null,
+        protected $estadoPago = null,
+        protected $medioPago = null
+    ) {}
 
-    public function collection()
+    public function sheets(): array
     {
-        $localId = LocalHelper::id();
-
-        $query = Venta::query()
-            ->where('local_id', $localId)
+        $query = Venta::with(['detalles.producto', 'pagos'])
             ->orderBy('fecha', 'desc');
 
-        if ($this->fechaInicio) {
-            $query->whereDate(
-                'fecha',
-                '>=',
-                $this->fechaInicio
-            );
-        }
+        if ($this->fechaInicio) $query->whereDate('fecha', '>=', $this->fechaInicio);
+        if ($this->fechaFin)    $query->whereDate('fecha', '<=', $this->fechaFin);
+        if ($this->estado)      $query->where('estado', $this->estado);
+        if ($this->estadoPago)  $query->where('estado_pago', $this->estadoPago);
+        if ($this->medioPago)   $query->where('medio_pago', $this->medioPago);
 
-        if ($this->fechaFin) {
-            $query->whereDate(
-                'fecha',
-                '<=',
-                $this->fechaFin
-            );
-        }
+        $ventas = $query->get();
 
-        if ($this->estado) {
-            $query->where(
-                'estado',
-                $this->estado
-            );
-        }
-
-        if ($this->estadoPago) {
-            $query->where(
-                'estado_pago',
-                $this->estadoPago
-            );
-        }
-
-        if ($this->medioPago) {
-            $query->where(
-                'medio_pago',
-                $this->medioPago
-            );
-        }
-
-        return $query->get();
-    }
-
-    public function headings(): array
-    {
-        return [
-            'N.º Venta',
-            'Fecha',
-            'Total',
-            'Medio de Pago',
-            'Estado de Pago',
-            'Monto Pagado',
-            'Saldo Pendiente',
-            'Estado',
-            'Observación',
+        $filtros = [
+            'Desde'          => $this->fechaInicio,
+            'Hasta'          => $this->fechaFin,
+            'Estado'         => $this->estado,
+            'Estado de pago' => $this->estadoPago,
+            'Medio de pago'  => $this->medioPago,
         ];
-    }
 
-    public function map($venta): array
-    {
         return [
-            $venta->id,
-
-            optional($venta->fecha)
-                ->format('d/m/Y H:i'),
-
-            $venta->total,
-
-            $venta->medio_pago === 'OTRO'
-                ? ($venta->medio_pago_otro ?: 'OTRO')
-                : $venta->medio_pago,
-
-            $venta->estado_pago,
-
-            $venta->monto_pagado,
-
-            $venta->saldo_pendiente,
-
-            $venta->estado,
-
-            $venta->observacion ?? '',
+            new VentasResumenSheet($ventas, $filtros),
+            new VentasListadoSheet($ventas),
+            new VentasProductosSheet($ventas),
+            new VentasPagosSheet($ventas),
         ];
     }
 }
