@@ -15,12 +15,12 @@ use App\Http\Controllers\PasswordController;
 use App\Http\Middleware\ForcePasswordChange;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/login', [
+Route::get('', [
     AuthController::class,
     'login'
 ])->name('login');
 
-Route::post('/login', [
+Route::post('', [
     AuthController::class,
     'authenticate'
 ])->name('login.authenticate');
